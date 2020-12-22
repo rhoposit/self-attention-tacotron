@@ -86,6 +86,21 @@ py_binary(
     ],
 )
 
+
+py_binary(
+    name = "preprocess_vqcodes",
+    srcs = [
+    	 "preprocess_vqcodes.py",
+    ],
+    srcs_version = "PY3ONLY",
+    python_version = "PY3",
+    deps = [
+    ":preprocess",
+    ],
+)
+
+
+
 py_binary(
     name = "preprocess_ljspeech",
     srcs = [

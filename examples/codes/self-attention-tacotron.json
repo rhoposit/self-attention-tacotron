@@ -1,0 +1,20 @@
+{
+    "initial_learning_rate": 0.0005,
+    "outputs_per_step": 1,
+    "max_iters": 500,
+    "attention": "forward",
+    "cumulative_weights": false,
+    "attention_kernel": 10,
+    "attention_filters": 5,
+    "use_zoneout_at_encoder": true,
+    "decoder_version": "v2",
+    "dataset": "codes.dataset.DatasetSource",
+    "target_file_extension": "target.tfrecord",
+    "save_checkpoints_steps": 1343,
+    "tacotron_model": "DualSourceSelfAttentionTacotronModel",
+    "encoder": "SelfAttentionCBHGEncoder",
+    "decoder": "DualSourceTransformerDecoder",
+    "use_speaker_embedding": true,
+    "num_speakers": 152,
+    "speaker_embedding_offset": 225
+}

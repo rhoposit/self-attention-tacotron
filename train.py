@@ -19,7 +19,7 @@ Options:
 
 from docopt import docopt
 import tensorflow as tf
-import os
+import os, sys
 from random import shuffle
 from multiprocessing import cpu_count
 import logging
@@ -28,8 +28,7 @@ from models.models import tacotron_model_factory
 from hparams import hparams, hparams_debug_string
 
 
-def train_and_evaluate(hparams, model_dir, train_source_files, train_target_files, eval_source_files,
-                       eval_target_files, use_multi_gpu):
+def train_and_evaluate(hparams, model_dir, train_source_files, train_target_files, eval_source_files, eval_target_files, use_multi_gpu):
 
     interleave_parallelism = get_parallelism(hparams.interleave_cycle_length_cpu_factor,
                                              hparams.interleave_cycle_length_min,
@@ -118,14 +117,10 @@ def main():
     training_list = list(load_key_list("train.csv", selected_list_dir))
     validation_list = list(load_key_list("validation.csv", selected_list_dir))
 
-    training_source_files = [os.path.join(source_data_root, f"{key}.{hparams.source_file_extension}") for key in
-                             training_list]
-    training_target_files = [os.path.join(target_data_root, f"{key}.{hparams.target_file_extension}") for key in
-                             training_list]
-    validation_source_files = [os.path.join(source_data_root, f"{key}.{hparams.source_file_extension}") for key in
-                               validation_list]
-    validation_target_files = [os.path.join(target_data_root, f"{key}.{hparams.target_file_extension}") for key in
-                               validation_list]
+    training_source_files = [os.path.join(source_data_root, f"{key}.{hparams.source_file_extension}") for key in training_list]
+    training_target_files = [os.path.join(target_data_root, f"{key}.{hparams.target_file_extension}") for key in training_list]
+    validation_source_files = [os.path.join(source_data_root, f"{key}.{hparams.source_file_extension}") for key in validation_list]
+    validation_target_files = [os.path.join(target_data_root, f"{key}.{hparams.target_file_extension}") for key in validation_list]
 
     log = logging.getLogger("tensorflow")
     log.setLevel(logging.INFO)

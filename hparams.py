@@ -10,7 +10,7 @@ import tensorflow as tf
 hparams = tf.contrib.training.HParams(
 
     # Audio
-    num_mels=80,
+    num_mels=1,
     num_mgcs=60,
     num_freq=2049,
     sample_rate=48000,
@@ -44,8 +44,8 @@ hparams = tf.contrib.training.HParams(
     # Model:
     # tacotron_model= ExtendedTacotronV1Model, DualSourceSelfAttentionTacotronModel, DualSourceSelfAttentionMgcLf0TacotronModel
     tacotron_model="ExtendedTacotronV1Model",
-    outputs_per_step=2,
-    n_feed_frame=2,
+    outputs_per_step=1,
+    n_feed_frame=1,
 
     ## Embedding
     embedding_dim=256,
@@ -149,7 +149,7 @@ hparams = tf.contrib.training.HParams(
     postnet_v2_drop_rate=0.5,
 
     ## loss
-    spec_loss_type="l1",  # l1 or mse
+    code_loss_type="l1",  # l1 or mse
 
     # Training:
     batch_size=32,
