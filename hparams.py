@@ -61,7 +61,7 @@ hparams = tf.contrib.training.HParams(
 
     ## Encoder
     # encoder= ZoneoutEncoderV1 | EncoderV1WithAccentType | SelfAttentionCBHGEncoder | SelfAttentionCBHGEncoderWithAccentType
-    encoder="ZoneoutEncoderV1",
+    encoder="SelfAttentionCBHGEncoder",
 
     ### Encoder V1
     encoder_prenet_drop_rate=0.5,
