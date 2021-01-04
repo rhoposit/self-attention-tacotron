@@ -7,6 +7,7 @@
 
 import tensorflow as tf
 import numpy as np
+import sys
 from collections import namedtuple
 from abc import abstractmethod
 from utils.tfrecord import parse_preprocessed_code_data, decode_preprocessed_code_data, \
@@ -165,27 +166,27 @@ class DatasetSource:
 
             # what is silence here?
             codes_normalized = target.codes
+#            codes_normalized = tf.Print(codes_normalized, [tf.shape(codes_normalized)], "\ndataset: codes normalized")
             # whats the constant value
             # check the shapes
             silence = 0
 
             # paddings is outputs per step (tensor rank)
             paddings = [[r,1]]
-            print(codes_normalized)
-            print("codes shape", codes_normalized.shape)
-            print("paddings shape", np.array(paddings).shape)
-#            padding_before = paddings[0][0]
-#            padding_after = paddings[0][1]
-#            print("padding before", padding_before)
-#            print("padding after", padding_after)
-#            print("codes rank", tf.rank(codes_normalized))
-#            print("paddings rank", tf.rank(np.array(paddings)))
-                  
             codes_with_silence = tf.pad(codes_normalized, paddings=paddings, constant_values=silence)
+#            codes_with_silence = tf.Print(codes_with_silence, [tf.shape(codes_with_silence)], "\ndataset: codes with_silence")
 
             # +2r for head and tail silence
-            target_length = target.target_length + 2 * r
-            padded_target_length = (target_length // r + 1) * r
+#            tl = tf.Print(target.target_length, [target.target_length], "\ndataset: target length (1)")
+            tl = target.target_length
+            target_length = (tl*2) + 2 * r
+            target_length_masks = tl + 2 * r
+#            target_length = tf.Print(target_length, [target_length], "\ndataset: target length (2)")
+            padded_target_length = (target_length // r) * r
+            padded_target_length_masks = (target_length_masks // r) * r
+            
+#            target_length = tf.Print(target_length, [target_length], "\ndataset: target length (3)")
+#            padded_target_length = tf.Print(padded_target_length, [padded_target_length], "\ndataset: padded target length")
 
             # spec and mel length must be multiple of outputs_per_step
             def padding_function(t):
@@ -193,9 +194,7 @@ class DatasetSource:
                 # indices: 2d tensor [N, ndims], which specifies the indices of the elements in the sparse tensor that contain nonzero values
                 # values: A 1-D tensor of any type and shape [N], which supplies the values for each element in indices
                 # dense shape: A 1-D int64 tensor of shape [ndims], which specifies the dense_shape of the sparse tensor.
-                print("t", t)
                 idx = tf.where(tf.not_equal(t, 0))
-                print("idx", idx)
 #                padding_shape = tf.sparse_tensor_to_dense(
 #                    tf.SparseTensor(indices=idx,values=tf.expand_dims(tail_padding, axis=0),dense_shape=[(0)]))
                 return lambda: tf.pad(t, paddings=[[r,1]], constant_values=silence)
@@ -203,21 +202,25 @@ class DatasetSource:
             no_padding_condition = tf.equal(tf.to_int64(0), target_length % r)
 
             codes = tf.cond(no_padding_condition, lambda: codes_with_silence, padding_function(codes_with_silence))
-            print("codes", codes)
-            print("codes shape", codes.shape)
+#            codes = tf.Print(codes, [tf.shape(codes)], "\ndataset: codes (target 1)")
 
             ### what does this do?
-            codes.set_shape((None,))
+#            codes = tf.expand_dims(codes, axis=1)
+#            codes = tf.Print(codes, [tf.shape(codes)], "\ndataset: codes (target 2)")
 
             padded_target_length = tf.cond(no_padding_condition, lambda: target_length, lambda: padded_target_length)
-
+#            padded_target_length = tf.Print(padded_target_length, [tf.shape(padded_target_length)], "\ndataset: padded_target_length")
+            
             # done flag
-            done = tf.concat([tf.zeros(padded_target_length // r - 1, dtype=tf.float32),
+            done = tf.concat([tf.zeros(padded_target_length-1, dtype=tf.float32),
                               tf.ones(1, dtype=tf.float32)], axis=0)
 
             # loss mask
             code_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-            binary_loss_mask = tf.ones(shape=padded_target_length // r, dtype=tf.float32)
+            binary_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+            
+#            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "\ndataset: code loss mask")
+#            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\ndataset: binary loss mask")
 
             return CodeData(target.id, target.key, codes, padded_target_length, done, code_loss_mask, binary_loss_mask)
 

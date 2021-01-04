@@ -19,10 +19,6 @@ class TransformerTrainingHelper(Helper):
         self._output_dim = output_dim
         self.n_feed_frame = n_feed_frame
 
-        print("targets shape", targets.shape)
-        print("output dim", output_dim)
-        print("outputs per step", r)
-        
         self._targets = tf.reshape(targets,shape=tf.stack([self.batch_size, t_shape[1] // r, tf.to_int32(output_dim * r)]))
         self._targets.set_shape((targets.get_shape()[0].value, None, output_dim * r))
 

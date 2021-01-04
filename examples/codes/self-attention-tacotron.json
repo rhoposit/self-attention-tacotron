@@ -11,9 +11,9 @@
     "dataset": "codes.dataset.DatasetSource",
     "target_file_extension": "target.tfrecord",
     "save_checkpoints_steps": 1343,
-    "tacotron_model": "ExtendedTacotronV1Model",
+    "tacotron_model": "DualSourceSelfAttentionTacotronModel",
     "encoder": "SelfAttentionCBHGEncoder",
-    "decoder": "ExtendedDecoder",
+    "decoder": "DualSourceTransformerDecoder",
     "use_speaker_embedding": false,
     "num_speakers": 152,
     "speaker_embedding_offset": 225

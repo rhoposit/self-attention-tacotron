@@ -1555,8 +1555,8 @@ class DualSourceTransformerDecoder(tf.layers.Layer):
                                                                            teacher_forcing=teacher_forcing,
                                                                            memory_sequence_length=target_sequence_length)
 
-        mel_output = tf.reshape(decoder_outputs, [batch_size, -1, self.num_mels])
-        return mel_output, stop_token, final_decoder_state
+        code_output = tf.reshape(decoder_outputs, [batch_size, -1, self.num_mels])
+        return code_output, stop_token, final_decoder_state
 
 
 class DualSourceMgcLf0TransformerDecoder(tf.layers.Layer):

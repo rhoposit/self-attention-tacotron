@@ -17,6 +17,7 @@ CHECKPOINTS=/home/smg/v-j-williams/workspace/external_modified/sys5_checkpoints
 VCTK_SELECTED_LIST=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes
 HPARAM_FILE=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json
 
+export CUDA_VISIBLE_DEVICES=0
 python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
 
 #--multi-gpus

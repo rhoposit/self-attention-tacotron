@@ -43,7 +43,7 @@ hparams = tf.contrib.training.HParams(
 
     # Model:
     # tacotron_model= ExtendedTacotronV1Model, DualSourceSelfAttentionTacotronModel, DualSourceSelfAttentionMgcLf0TacotronModel
-    tacotron_model="ExtendedTacotronV1Model",
+    tacotron_model="DualSourceSelfAttentionTacotronModel",
     outputs_per_step=1,
     n_feed_frame=1,
 
@@ -89,7 +89,7 @@ hparams = tf.contrib.training.HParams(
     self_attention_transformer_kernel_size=5,
 
     ## Decoder
-    decoder="ExtendedDecoder", # ExtendedDecoder | TransformerDecoder | DualSourceDecoder | DualSourceTransformerDecoder | MgcLf0DualSourceDecoder
+    decoder="DualSourceTransformerDecoder", # ExtendedDecoder | TransformerDecoder | DualSourceDecoder | DualSourceTransformerDecoder | MgcLf0DualSourceDecoder
     attention="additive",  # additive, location_sensitive, forward
     forced_alignment_attention = "teacher_forcing_forward",  # teacher_forcing_forward, teacher_forcing_additive
 

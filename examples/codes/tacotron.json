@@ -181,10 +181,10 @@
     "dataset": "vctk.dataset.DatasetSource",
     "target_file_extension": "target.tfrecord",
     "save_checkpoints_steps": 1343,
-    "tacotron_model": "ExtendedTacotronV1Model",
-    "encoder": "ZoneoutEncoderV1",
-    "decoder": "ExtendedDecoder",
-    "use_speaker_embedding": true,
+    "tacotron_model": "DualSourceSelfAttentionTacotronModel",
+    "encoder": "SelfAttentionCBHGEncoder",
+    "decoder": "DualSourceTransformerDecoder",
+    "use_speaker_embedding": false,
     "num_speakers": 152,
     "speaker_embedding_offset": 225
 }
