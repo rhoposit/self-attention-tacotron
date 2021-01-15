@@ -15,13 +15,14 @@ from preprocess.cleaners import basic_cleaners
 from preprocess.text import text_to_sequence
 
 
-def write_preprocessed_target_data(_id: int, key: str, code: np.ndarray, filename: str):
-    raw_code = code.tostring()
+def write_preprocessed_target_data(_id: int, key: str, codes: np.ndarray, filename: str):
+    raw_codes = codes.tostring()
     example = tf.train.Example(features=tf.train.Features(feature={
         'id': int64_feature([_id]),
         'key': bytes_feature([key.encode('utf-8')]),
-        'codes': bytes_feature([raw_code]),
-        'target_length': int64_feature([len(code)]),
+        'codes': bytes_feature([raw_codes]),
+        'target_length': int64_feature([len(codes)]),
+        'codes_width': int64_feature([codes.shape[1]]),
     }))
     write_tfrecord(example, filename)
 
@@ -128,7 +129,10 @@ class CODES:
                 txt = txt.split("\t")[1]
                 codelist = txt.split(" ")
                 codeints = [int(c) for c in codelist if c != ""]
-                codes = np.array(codeints, dtype=np.int64)
+                a = np.array(codeints)
+                codes = np.zeros((a.size, 512))
+                codes[np.arange(a.size),a] = 1
+                codes = np.array(codes, np.float32)
                 file_path = os.path.join(self.out_dir, f"{record.key}.target.tfrecord")
                 write_preprocessed_target_data(record.id, record.key, codes, file_path)
                 return record.key
