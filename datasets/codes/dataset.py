@@ -167,8 +167,8 @@ class DatasetSource:
 #            sys.exit()
             codes_with_silence = tf.pad(codes, paddings=paddings, mode="CONSTANT")
 
-#            target_length = target.codes_length + 2 * r
-            target_length = tf.constant(3000, name='target_length', dtype=tf.int64)
+            target_length = target.codes_length + 2 * r
+#            target_length = tf.constant(3000, name='target_length', dtype=tf.int64)
             padded_target_length = (target_length // r + 1) * r
 
             # spec and mel length must be multiple of outputs_per_step
