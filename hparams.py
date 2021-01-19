@@ -189,7 +189,7 @@ hparams = tf.contrib.training.HParams(
     vars_to_warm_start=[".*"],
 
     # Eval:
-    max_iters=500,
+    max_iters=3000,
     num_evaluation_steps=64,
     keep_eval_results_max_epoch=10,
     eval_start_delay_secs=120,

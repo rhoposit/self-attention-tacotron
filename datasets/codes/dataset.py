@@ -6,8 +6,9 @@
 """  """
 
 import tensorflow as tf
-import numpy as np
 import sys
+import numpy as np
+np.set_printoptions(threshold=sys.maxsize)
 from collections import namedtuple
 from abc import abstractmethod
 from utils.tfrecord import parse_preprocessed_code_data, decode_preprocessed_code_data, \
@@ -137,11 +138,7 @@ class DatasetSource:
         def convert(inputs: PreprocessedSourceData):
             source = inputs.source
             source_length = inputs.source_length
-            text = inputs.text
-            
-#            source = inputs.phone if hparams.source == 'phone' else inputs.source
-#            source_length = inputs.phone_length if hparams.source == 'phone' else inputs.source_length
-#            text = inputs.phone_txt if hparams.source == 'phone' else inputs.text
+            text = inputs.text            
             return SourceData(inputs.id, inputs.key, source, source_length, inputs.speaker_id, inputs.age,
                               inputs.gender, text)
 
@@ -151,52 +148,43 @@ class DatasetSource:
     def _prepare_target(target, hparams):
         def convert(target: PreprocessedCodeData):
             r = hparams.outputs_per_step
-            codes_normalized = target.codes
+            codes = target.codes
 
             a = np.array([366])
             silence = np.zeros((a.size, 512))
             silence[np.arange(a.size),a] = 1
             silence = np.float32(silence)
-            print(silence.shape)
-            silence = tf.constant(silence)
-            
 
+#            r = 2
             # paddings is outputs per step (tensor rank)
             paddings = [[r, r], [0, 0]]
-            print(paddings)
-            codes_normalized = tf.Print(codes_normalized, [tf.shape(codes_normalized)], "")
+#            print("* paddings", paddings)
+#            print("* codes", codes)
+#            print("* length", target.codes_length)
+#            print("* width", target.codes_width)
+#            codes = tf.Print(codes, [codes], "codes")
+#            tf.print(tf.shape(codes))
+#            sys.exit()
+            codes_with_silence = tf.pad(codes, paddings=paddings, mode="CONSTANT")
 
-            print(codes_normalized.shape)
-            codes_with_silence = tf.pad(codes_normalized, paddings=paddings, constant_values=silence)
-
-            
-            codes_with_silence = tf.Print(codes_with_silence, [tf.shape(codes_with_silence)], "\ndataset: codes with_silence")
-
-            # +2r for head and tail silence
-            target_length = target.target_length + 2 * r
+#            target_length = target.codes_length + 2 * r
+            target_length = tf.constant(3000, name='target_length', dtype=tf.int64)
             padded_target_length = (target_length // r + 1) * r
-
-            target_length = tf.Print(target_length, [target_length], "\ndataset: target length")
-            padded_target_length = tf.Print(padded_target_length, [padded_target_length], "\ndataset: padded target length")
 
             # spec and mel length must be multiple of outputs_per_step
             def padding_function(t):
                 tail_padding = padded_target_length - target_length
+#                print("* tail_padding", tail_padding.eval())
                 padding_shape = tf.sparse_tensor_to_dense(
                     tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
-                return lambda: tf.pad(t, paddings=padding_shape, constant_values=silence)
+                return lambda: tf.pad(t, paddings=padding_shape, mode="CONSTANT")
             
-            no_padding_condition = tf.equal(tf.to_int64(0), target_length % r)
+            zero64 = tf.cast(0, dtype=tf.int64)
+            no_padding_condition = tf.equal(zero64, target_length % r)
 
             codes = tf.cond(no_padding_condition, lambda: codes_with_silence, padding_function(codes_with_silence))
-#            codes = tf.Print(codes, [tf.shape(codes)], "\ndataset: codes (target 1)")
-
-            ### what does this do?
-#            codes = tf.expand_dims(codes, axis=1)
-#            codes = tf.Print(codes, [tf.shape(codes)], "\ndataset: codes (target 2)")
 
             padded_target_length = tf.cond(no_padding_condition, lambda: target_length, lambda: padded_target_length)
-#            padded_target_length = tf.Print(padded_target_length, [tf.shape(padded_target_length)], "\ndataset: padded_target_length")
             
             # done flag
             done = tf.concat([tf.zeros(padded_target_length // r - 1, dtype=tf.float32),
@@ -205,10 +193,7 @@ class DatasetSource:
             code_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
             binary_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
             
-#            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "\ndataset: code loss mask")
-#            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\ndataset: binary loss mask")
-
-            return CodeData(target.id, target.key, codes, target.codes_width, padded_target_length, done, code_loss_mask, binary_loss_mask)
+            return CodeData(target.id, target.key, codes, target.codes_length, padded_target_length, done, code_loss_mask, binary_loss_mask)
 
         return DatasetSource._decode_target(target).map(lambda inputs: convert(inputs))
 
@@ -307,7 +292,7 @@ class ZippedDataset(DatasetBase):
                 CodeData(
                     id=tf.TensorShape([]),
                     key=tf.TensorShape([]),
-                    codes=tf.TensorShape([None,]),
+                    codes=tf.TensorShape([None,512]),
                     codes_length=tf.TensorShape([]),
                     target_length=tf.TensorShape([]),
                     done=tf.TensorShape([None]),
@@ -327,7 +312,7 @@ class ZippedDataset(DatasetBase):
                 CodeData(
                     id=tf.to_int64(0),
                     key="",
-                    codes=tf.to_float(silence),
+                    codes=tf.to_float(0),
                     codes_length=tf.to_int64(0),
                     target_length=tf.to_int64(0),
                     done=tf.to_float(1),
@@ -362,7 +347,7 @@ class BatchedDataset(DatasetBase):
         return self.apply(self.dataset.prefetch(buffer_size), self.hparams)
 
     def merge_target_to_source(self):
-        def convert(s: SourceData, t: MelData):
+        def convert(s: SourceData, t: CodeData):
             return SourceDataForPrediction(
                 id=s.id,
                 key=s.key,

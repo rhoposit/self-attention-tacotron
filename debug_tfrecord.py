@@ -76,7 +76,8 @@ with sess.as_default():
                 print("* codes silence", codes_silence)
 #                print("* preds padded", preds_padded[1])
                 
-                target_length = result.codes_length + 2 * r
+                target_length = tf.constant(3000, name='target_length')
+#                target_length = result.codes_length + 2 * r
                 padded_target_length = (target_length // r + 1) * r
                 print("* code length", target_length.eval())
                 print("* padded code length", padded_target_length.eval())
@@ -89,7 +90,7 @@ with sess.as_default():
                     return lambda: tf.pad(t, paddings=padding_shape, mode="CONSTANT")
 #                    return lambda: tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db)
 
-                zero64 = tf.cast(0, dtype=tf.int64)
+                zero64 = tf.cast(0, dtype=tf.int32)
                 no_padding_condition = tf.equal(zero64, target_length % r)
                 print("* no condition (T/F)", no_padding_condition.eval())
                       
@@ -103,19 +104,9 @@ with sess.as_default():
                               tf.ones(1, dtype=tf.float32)], axis=0)
                 code_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
                 binary_loss_mask = tf.ones(shape=padded_target_length // r, dtype=tf.float32)
-                print("* done", tf.shape(done).eval(), done.eval())
-                print("* code_loss_mask", tf.shape(code_loss_mask).eval(), code_loss_mask.eval())
-                print("* binary_loss_mask", tf.shape(binary_loss_mask).eval(), binary_loss_mask.eval())
-
-                print(result.id)
-                print(result.key)
-                print(codes)
-                print(result.codes_length)
-                print(padded_target_length)
-                print(done)
-                print(code_loss_mask)
-                print(binary_loss_mask)
-                
+                print("* done", tf.shape(done).eval())#, done.eval())
+                print("* code_loss_mask", tf.shape(code_loss_mask).eval())#, code_loss_mask.eval())
+                print("* binary_loss_mask", tf.shape(binary_loss_mask).eval())#, binary_loss_mask.eval())
 
                 if count == 1:
                     sys.exit()

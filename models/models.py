@@ -209,7 +209,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                     teacher_forcing=True,
                     apply_dropout_on_inference=params.apply_dropout_on_inference)
 
-                code_loss_with_teacher = code_loss(code_output_with_teacher, labels.codes,
+                code_loss_with_teacher = codes_loss(code_output_with_teacher, labels.codes,
                                                   labels.code_loss_mask, params.code_loss_type)
                 done_loss_with_teacher = binary_loss(stop_token_with_teacher, labels.done, labels.binary_loss_mask)
                 loss_with_teacher = code_loss_with_teacher + done_loss_with_teacher + regularization_loss
@@ -334,7 +334,7 @@ def decoder_factory(params):
                                                attention_rnn_out_units=params.attention_out_units,
                                                decoder_version=params.decoder_version,
                                                decoder_out_units=params.decoder_out_units,
-                                               num_mels=params.num_mels,
+                                               num_mels=512,
                                                outputs_per_step=params.outputs_per_step,
                                                max_iters=params.max_iters,
                                                n_feed_frame=params.n_feed_frame,
