@@ -53,7 +53,7 @@ if __name__ == "__main__":
     from preprocess.codes import CODES
     instance = CODES(in_dir, out_dir, hparams)
 
-    sc = SparkContext()
+#    sc = SparkContext()
 
     record_rdd = instance.list_files()
 

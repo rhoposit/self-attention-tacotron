@@ -9,19 +9,20 @@ import os, sys
 from collections import namedtuple
 import tensorflow as tf
 import numpy as np
+np.set_printoptions(threshold=sys.maxsize)
 from pyspark import RDD, StorageLevel
 from utils.tfrecord import write_tfrecord, int64_feature, bytes_feature
 from preprocess.cleaners import basic_cleaners
 from preprocess.text import text_to_sequence
 
 
-def write_preprocessed_target_data(_id: int, key: str, codes: np.ndarray, filename: str):
+def write_preprocessed_target_data(_id: int, key: str, codes: np.ndarray, codes_length: int, filename: str):
     raw_codes = codes.tostring()
     example = tf.train.Example(features=tf.train.Features(feature={
         'id': int64_feature([_id]),
         'key': bytes_feature([key.encode('utf-8')]),
         'codes': bytes_feature([raw_codes]),
-        'target_length': int64_feature([len(codes)]),
+        'codes_length': int64_feature([codes_length]),
         'codes_width': int64_feature([codes.shape[1]]),
     }))
     write_tfrecord(example, filename)
@@ -133,8 +134,9 @@ class CODES:
                 codes = np.zeros((a.size, 512))
                 codes[np.arange(a.size),a] = 1
                 codes = np.array(codes, np.float32)
+                codes_length = a.size
                 file_path = os.path.join(self.out_dir, f"{record.key}.target.tfrecord")
-                write_preprocessed_target_data(record.id, record.key, codes, file_path)
+                write_preprocessed_target_data(record.id, record.key, codes, codes_length, file_path)
                 return record.key
 
     def _process_txt(self, record: TxtCodeRecord):

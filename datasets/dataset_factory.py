@@ -13,7 +13,7 @@ from datasets.codes.dataset import DatasetSource as CODESDatasetSource
 
 def dataset_factory(source, target, hparams):
     if hparams.dataset == "codes.dataset.DatasetSource":
-        return VCTKDatasetSource(source, target, hparams)
+        return CODESDatasetSource(source, target, hparams)
     else:
         raise ValueError("Unkown dataset")
 
