@@ -14,23 +14,22 @@ from typing import List, Optional
 
 
 class PreprocessedTargetData(namedtuple("PreprocessedTargetData",
-                                        ["id", "key", "spec", "spec_width", "mel", "mel_width", "target_length"])):
+    ["id", "key", "spec", "spec_width", "mel", "mel_width", "target_length"])):
     pass
 
 
 class PreprocessedCodeData(namedtuple("PreprocessedCodeData",
-                                     ["id", "key", "codes",  "target_length"])):
+    ["id", "key", "codes",  "codes_length", "codes_width"])):
     pass
 
 
 class PreprocessedMgcLf0Data(namedtuple("PreprocessedMgcLf0Data",
-                                        ["id", "key", "mgc", "mgc_width", "lf0", "target_length"])):
+    ["id", "key", "mgc", "mgc_width", "lf0", "target_length"])):
     pass
 
 
 class PredictionResult(namedtuple("PredictionResult",
-                                  ["id", "key", "mel", "mel_length", "mel_width", "ground_truth_mel",
-                                   "ground_truth_mel_length", "text", "source", "source_length"])):
+    ["id", "key", "mel", "mel_length", "mel_width", "ground_truth_mel", "ground_truth_mel_length", "text", "source", "source_length"])):
     pass
 
 
@@ -54,23 +53,23 @@ def parse_preprocessed_target_data(proto):
         'id': tf.FixedLenFeature((), tf.int64),
         'key': tf.FixedLenFeature((), tf.string),
         'codes': tf.FixedLenFeature((), tf.string),
-        'target_length': tf.FixedLenFeature((), tf.int64),
+        'codes_length': tf.FixedLenFeature((), tf.int64),
+        'codes_width': tf.FixedLenFeature((), tf.int64),
     }
     parsed_features = tf.parse_single_example(proto, features)
     return parsed_features
 
 
 def decode_preprocessed_target_data(parsed):
-    target_length = parsed['target_length']
+    codes_length = parsed["codes_length"]
+    codes_width = parsed["codes_width"]
     codes = tf.decode_raw(parsed['codes'], tf.float32)
-    return PreprocessedTargetData(
+    return PreprocessedCodeData(
         id=parsed['id'],
         key=parsed['key'],
-        codes=tf.reshape(spec, shape=tf.stack([target_length, spec_width], axis=0)),
-        spec_width=spec_width,
-        mel=tf.reshape(mel, shape=tf.stack([target_length, mel_width], axis=0)),
-        mel_width=mel_width,
-        target_length=target_length,
+        codes=tf.reshape(codes, shape=tf.stack([codes_length, codes_width], axis=0)),
+        codes_length=codes_length,
+        codes_width=codes_width,
     )
 
 
@@ -79,20 +78,23 @@ def parse_preprocessed_code_data(proto):
         'id': tf.FixedLenFeature((), tf.int64),
         'key': tf.FixedLenFeature((), tf.string),
         'codes': tf.FixedLenFeature((), tf.string),
-        'target_length': tf.FixedLenFeature((), tf.int64),
+        'codes_length': tf.FixedLenFeature((), tf.int64),
+        'codes_width': tf.FixedLenFeature((), tf.int64),
     }
     parsed_features = tf.parse_single_example(proto, features)
     return parsed_features
 
 
 def decode_preprocessed_code_data(parsed):
-    target_length = parsed['target_length']
+    codes_length = parsed["codes_length"]
+    codes_width = parsed["codes_width"]
     codes = tf.decode_raw(parsed['codes'], tf.float32)
     return PreprocessedCodeData(
         id=parsed['id'],
         key=parsed['key'],
-        codes=tf.reshape(codes, shape=tf.stack([target_length], axis=0)),
-        target_length=target_length,
+        codes=tf.reshape(codes, shape=tf.stack([codes_length, codes_width], axis=0)),
+        codes_length=codes_length,
+        codes_width=codes_width,
     )
 
 
