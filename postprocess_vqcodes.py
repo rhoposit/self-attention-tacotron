@@ -51,10 +51,10 @@ def decode_prediction_result(parsed):
 
 
 
-datadir = "/home/smg/v-j-williams/workspace/external_modified/prediction2/"
+datadir = "/home/smg/v-j-williams/workspace/external_modified/prediction/"
 tfiles = glob.glob(datadir+"/*.tfrecord")
 print(tfiles)
-outdir = "/home/smg/v-j-williams/workspace/external_modified/synth2"
+outdir = "/home/smg/v-j-williams/workspace/external_modified/synth"
 
 sess = tf.InteractiveSession()
 with sess.as_default():
