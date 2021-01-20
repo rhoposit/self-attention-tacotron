@@ -35,18 +35,18 @@ def plot_predictions(alignments, mel, mel_predicted, mel_predicted_postnet, text
     fig.subplots_adjust(wspace=0.4, hspace=0.6)
 
     ax = fig.add_subplot(num_rows, 1, num_alignment + 1)
-    im = ax.imshow(mel.T, origin="lower bottom", aspect="auto", cmap="magma")
+    im = ax.imshow(mel.T, origin="lower", aspect="auto", cmap="magma")
     fig.colorbar(im, ax=ax)
     ax = fig.add_subplot(num_rows, 1, num_alignment + 2, sharex=ax)
     im = ax.imshow(mel_predicted.T,
-                   origin="lower bottom", aspect="auto", cmap="magma")
+                   origin="lower", aspect="auto", cmap="magma")
     fig.colorbar(im, ax=ax)
 
-    if mel_predicted_postnet is not None:
-        ax = fig.add_subplot(num_rows, 1, num_alignment + 3, sharex=ax)
-        im = ax.imshow(mel_predicted_postnet.T,
-                       origin="lower bottom", aspect="auto", cmap="magma")
-        fig.colorbar(im, ax=ax)
+#    if mel_predicted_postnet is not None:
+#        ax = fig.add_subplot(num_rows, 1, num_alignment + 3, sharex=ax)
+#        im = ax.imshow(mel_predicted_postnet.T,
+#                       origin="lower", aspect="auto", cmap="magma")
+#        fig.colorbar(im, ax=ax)
 
     fig.suptitle(f"record ID: {key}\ninput text: {str(text)}")
     fig.savefig(filename, format='png')

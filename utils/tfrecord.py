@@ -126,22 +126,18 @@ def decode_preprocessed_mgc_lf0_data(parsed):
     )
 
 
-def write_prediction_result(id_: int, key: str, alignments: List[np.ndarray], mel: np.ndarray,
-                            ground_truth_mel: np.ndarray,
-                            text: str, source: np.ndarray, accent_type: Optional[np.ndarray], filename: str):
+def write_prediction_result(id_: int, key: str, alignments: List[np.ndarray], codes: np.ndarray, ground_truth_codes: np.ndarray, text: str, source: np.ndarray, accent_type: Optional[np.ndarray], filename: str):
     example = tf.train.Example(features=tf.train.Features(feature={
         'id': int64_feature([id_]),
         'key': bytes_feature([key.encode('utf-8')]),
-        'mel': bytes_feature([mel.tostring()]),
-        'mel_length': int64_feature([mel.shape[0]]),
-        'mel_width': int64_feature([mel.shape[1]]),
-        'ground_truth_mel': bytes_feature([ground_truth_mel.tostring()]),
-        'ground_truth_mel_length': int64_feature([ground_truth_mel.shape[0]]),
-        'alignment': bytes_feature([alignment.tostring() for alignment in alignments]),
+        'codes': bytes_feature([codes.tostring()]),
+        'codes_length': int64_feature([codes.shape[0]]),
+        'codes_width': int64_feature([codes.shape[1]]),
+        'ground_truth_codes': bytes_feature([ground_truth_codes.tostring()]),
+        'ground_truth_codes_length': int64_feature([ground_truth_codes.shape[0]]),
         'text': bytes_feature([text.encode('utf-8')]),
         'source': bytes_feature([source.tostring()]),
         'source_length': int64_feature([source.shape[0]]),
-        'accent_type': bytes_feature([accent_type.tostring()]) if accent_type is not None else bytes_feature([]),
     }))
     write_tfrecord(example, filename)
 

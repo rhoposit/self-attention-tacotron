@@ -152,7 +152,7 @@ hparams = tf.contrib.training.HParams(
     code_loss_type="l1",  # l1 or mse
 
     # Training:
-    batch_size=32,
+    batch_size=16,
     adam_beta1=0.9,
     adam_beta2=0.999,
     adam_eps=1e-8,
@@ -162,11 +162,11 @@ hparams = tf.contrib.training.HParams(
     use_l2_regularization=False,
     l2_regularization_weight=1e-7,
     save_summary_steps=100,
-    save_checkpoints_steps=500,
+    save_checkpoints_steps=100,
     keep_checkpoint_max=200,
     keep_checkpoint_every_n_hours=1,  # deprecated
     log_step_count_steps=1,
-    alignment_save_steps=10000,
+    alignment_save_steps=1000,
     save_training_time_metrics=False,
     approx_min_target_length=100,
     suffle_buffer_size=64,

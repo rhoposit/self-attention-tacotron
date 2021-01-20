@@ -1,13 +1,13 @@
 import glob
 import sys
 import tensorflow as tf
-#tf.enable_eager_execution()
 from collections import namedtuple
 import numpy as np
+np.set_printoptions(threshold=sys.maxsize)
 
 
 class PredictionResult(namedtuple("PredictionResult",
-                                  ["id", "key", "codes", "codes_length", "ground_truth_codes","ground_truth_codes_length", "text", "source", "source_length"])): pass
+                                  ["id", "key", "codes", "codes_length", "codes_width", "ground_truth_codes","ground_truth_codes_length", "text", "source", "source_length"])): pass
 
 
 
@@ -18,11 +18,12 @@ def parse_prediction_result(proto):
         'key': tf.FixedLenFeature((), tf.string),
         'codes': tf.FixedLenFeature((), tf.string),
         'codes_length': tf.FixedLenFeature((), tf.int64),
+        'codes_width': tf.FixedLenFeature((), tf.int64),
         'ground_truth_codes': tf.FixedLenFeature((), tf.string),
         'ground_truth_codes_length': tf.FixedLenFeature((), tf.int64),
         'text': tf.FixedLenFeature((), tf.string),
         'source': tf.FixedLenFeature((), tf.string),
-        'source_length': tf.FixedLenFeature((), tf.int64)
+        'source_length': tf.FixedLenFeature((), tf.int64),
     }
     parsed_features = tf.parse_single_example(proto, features)
     return parsed_features
@@ -31,14 +32,16 @@ def decode_prediction_result(parsed):
     source = tf.decode_raw(parsed['source'], tf.int64)
     codes = tf.decode_raw(parsed['codes'], tf.int32)
     codes_length = parsed["codes_length"]
+    codes_width = parsed["codes_width"]
     ground_truth_codes = tf.decode_raw(parsed['ground_truth_codes'], tf.int32)
     ground_truth_codes_length = parsed["ground_truth_codes_length"]
     return PredictionResult(
         id=parsed['id'],
         key=parsed['key'],
-        codes=tf.reshape(codes, shape=tf.stack([codes_length], axis=0)),
+        codes=tf.reshape(codes, shape=tf.stack([codes_length, codes_width], axis=0)),
         codes_length=codes_length,
-        ground_truth_codes=tf.reshape(ground_truth_codes, shape=tf.stack([ground_truth_codes_length], axis=0)),
+        codes_width=codes_width,
+        ground_truth_codes=tf.reshape(ground_truth_codes, shape=tf.stack([ground_truth_codes_length, codes_width], axis=0)),
         ground_truth_codes_length=ground_truth_codes_length,
         text=parsed['text'],
         source=source,
@@ -48,10 +51,10 @@ def decode_prediction_result(parsed):
 
 
 
-datadir = "/gs/hs0/tgh-20IAA/jenn/taco_exp/prediction/"
+datadir = "/home/smg/v-j-williams/workspace/external_modified/prediction2/"
 tfiles = glob.glob(datadir+"/*.tfrecord")
 print(tfiles)
-outdir = "/gs/hs0/tgh-20IAA/jenn/taco_exp/synth"
+outdir = "/home/smg/v-j-williams/workspace/external_modified/synth2"
 
 sess = tf.InteractiveSession()
 with sess.as_default():
@@ -59,14 +62,24 @@ with sess.as_default():
         for example in tf.python_io.tf_record_iterator(record):
             features = parse_prediction_result(example)
             result = decode_prediction_result(features)
+#            print("* features", features)
+#            print("* result", result)
             fid = result.key.eval().decode('utf-8')
             truth = np.array(result.ground_truth_codes.eval()).astype(int)
             preds = np.array(result.codes.eval()).astype(int)
             text = result.text.eval().decode('utf-8')
+            print(preds[0].shape)
+            codes_pred = np.argmax(preds, axis=1)
+            codes_truth = np.argmax(truth, axis=1)
 
+            
             print(text)
-            print(preds)
-            print(truth)
+            print(preds[1])
+            print(codes_pred)
+            print(codes_pred.shape)
+            print(truth[1])
+            print(codes_truth)
+            print(codes_truth.shape)
             print(fid)
 
             # save these into a file, in a directory to synthesize from
@@ -74,5 +87,19 @@ with sess.as_default():
             output = open(outfile+".txt", "w")
             output.write(text)
             output.close()
-            np.savetxt(outfile+".preds.txt", preds, delimiter=',', fmt='%i')
-            np.savetxt(outfile+".truth.txt", truth, delimiter=',', fmt='%i') 
+            codes_pred_list = list(codes_pred)
+            codes_pred_list = [str(c) for c in codes_pred_list]
+            outstring = " ".join(codes_pred_list)+"\n"
+            output = open(outfile+".preds.txt", "w")
+            output.write(outstring)
+            output.close()
+            codes_truth_list = list(codes_truth)
+            codes_truth_list = [str(c) for c in codes_truth_list]
+            outstring = " ".join(codes_truth_list)+"\n"
+            output = open(outfile+".truth.txt", "w")
+            output.write(outstring)
+            output.close()
+
+            
+#            np.savetxt(outfile+".preds.txt", codes_pred, delimiter=' ', fmt='%i')
+#            np.savetxt(outfile+".truth.txt", codes_truth, delimiter=' ', fmt='%i') 

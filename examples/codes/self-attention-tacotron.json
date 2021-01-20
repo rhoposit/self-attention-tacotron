@@ -10,7 +10,7 @@
     "decoder_version": "v2",
     "dataset": "codes.dataset.DatasetSource",
     "target_file_extension": "target.tfrecord",
-    "save_checkpoints_steps": 1343,
+    "save_checkpoints_steps": 100,
     "tacotron_model": "DualSourceSelfAttentionTacotronModel",
     "encoder": "SelfAttentionCBHGEncoder",
     "decoder": "DualSourceTransformerDecoder",

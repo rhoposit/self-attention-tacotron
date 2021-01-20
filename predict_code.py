@@ -16,7 +16,7 @@ Options:
 
 from docopt import docopt
 import tensorflow as tf
-import os
+import os, sys
 from collections import namedtuple
 from modules.metrics import plot_predictions
 from utils.tfrecord import write_prediction_result
@@ -48,12 +48,14 @@ def predict(hparams,
         lambda p: PredictedCodes(p["id"], p["key"], p["codes"], p["ground_truth_codes"], p["alignment"], p.get("alignment2"), p.get("alignment3"), p.get("alignment4"), p.get("alignment5"), p.get("alignment6"), p["source"], p["text"], p.get("accent_type")),
         estimator.predict(predict_input_fn, checkpoint_path=checkpoint_path))
 
+    count = 0
     for v in predictions:
+        count += 1
         key = v.key.decode('utf-8')
         filename = f"{key}.mfbsp"
         filepath = os.path.join(output_dir, filename)
         codes = v.codes
-        assert codes.shape[1] == hparams.num_mels
+        assert codes.shape[1] == 512
         codes.tofile(filepath, format='<f4')
         text = v.text.decode("utf-8")
         print(key, codes.shape[0], v.ground_truth_codes.shape[0], text)
@@ -65,8 +67,9 @@ def predict(hparams,
 #                         text, v.key, plot_filepath)
         prediction_filename = f"{key}.tfrecord"
         prediction_filepath = os.path.join(output_dir, prediction_filename)
-        write_prediction_result(v.id, key, alignments, codes, v.ground_truth_codes, text, v.source,
-                                v.accent_type, prediction_filepath)
+        write_prediction_result(v.id, key, alignments, codes, v.ground_truth_codes, text, v.source, v.accent_type, prediction_filepath)
+        if count == 3:
+            sys.exit()
 
 
 def load_key_list(filename, in_dir):
