@@ -79,7 +79,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                     (encoder_self_attention_output, expand_speaker_embedding_output), axis=-1)
                 
             attention1_fn, attention2_fn = dual_source_attention_factory(params)
-            code_output_softmax, stop_token, decoder_state = decoder((encoder_lstm_output, encoder_self_attention_output),
+            code_output_raw, stop_token, decoder_state = decoder((encoder_lstm_output, encoder_self_attention_output),
                                                             attention1_fn=attention1_fn,
                                                             attention2_fn=attention2_fn,
                                                             speaker_embed=speaker_embedding_output if params.speaker_embedd_to_prenet else None,
@@ -91,8 +91,11 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                                                             target_sequence_length=labels.target_length if is_training else None,
                                                             target=target,
                                                             apply_dropout_on_inference=params.apply_dropout_on_inference)
-#            code_output_softmax = tf.Print(code_output_softmax, [code_output_softmax[3][0]], "\ncode output softmax", summarize=-1)
+#            code_output_raw = tf.Print(code_output_raw, [code_output_raw[3][0]], "\n* code output raw", summarize=-1)
+            code_output_softmax = tf.nn.softmax(code_output_raw, axis=None, name=None, dim=None)
+#            code_output_softmax = tf.Print(code_output_softmax, [code_output_softmax[3][0]], "\n* code output softmax", summarize=-1)
             code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 512)
+#            code_output = tf.Print(code_output, [code_output[3][0]], "\n* code output onehot", summarize=-1)
 
             # arrange to (B, T_memory, T_query)
             self_attention_alignment = [tf.transpose(a, perm=[0, 2, 1]) for a in self_attention_alignment]
@@ -110,7 +113,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
 
             if params.use_forced_alignment_mode:
                 attention1_fn, attention2_fn = force_alignment_dual_source_attention_factory(params)
-                code_output_softmax, stop_token, decoder_state = decoder((encoder_lstm_output, encoder_self_attention_output),
+                code_output_raw, stop_token, decoder_state = decoder((encoder_lstm_output, encoder_self_attention_output),
                                                                 attention1_fn=attention1_fn,
                                                                 attention2_fn=attention2_fn,
                                                                 speaker_embed=speaker_embedding_output if params.speaker_embedd_to_prenet else None,
@@ -125,6 +128,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                                                                     tf.transpose(alignment1, perm=[0, 2, 1]),
                                                                     tf.transpose(alignment2, perm=[0, 2, 1])),
                                                                 apply_dropout_on_inference=params.apply_dropout_on_inference)
+                code_output_softmax = tf.nn.softmax(code_output_raw, axis=None, name=None, dim=None)
                 code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 512)
 
                 if params.decoder == "DualSourceTransformerDecoder" and not is_training:
@@ -148,7 +152,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
 #                out3 = tf.Print(labels.code_loss_mask, [tf.shape(labels.code_loss_mask)], "\nlabels.code_mask")
 #
 #                code_loss = codes_loss(code_output, out2, out3,params.code_loss_type)
-                code_loss = codes_loss(code_output, labels.codes, labels.code_loss_mask, params.code_loss_type)
+                code_loss = 0.1*codes_loss(code_output_raw, labels.codes, labels.code_loss_mask, params.code_loss_type)
                 
                 # fixing labels.done, labels.binary_loss_mask
 #                stop_token = tf.Print(stop_token, [tf.shape(stop_token)], "stop_token")
@@ -200,7 +204,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
             if is_validation:
                 # validation with teacher forcing
                 attention1_fn, attention2_fn = dual_source_attention_factory(params)
-                code_output_softmax_with_teacher, stop_token_with_teacher, decoder_state_with_teacher = decoder(
+                code_output_raw_with_teacher, stop_token_with_teacher, decoder_state_with_teacher = decoder(
                     (encoder_lstm_output, encoder_self_attention_output),
                     attention1_fn=attention1_fn,
                     attention2_fn=attention2_fn,
@@ -214,8 +218,9 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                     teacher_forcing=True,
                     apply_dropout_on_inference=params.apply_dropout_on_inference)
                 
+                code_output_softmax_with_teacher = tf.nn.softmax(code_output_raw_with_teacher, axis=None, name=None, dim=None)
                 code_output_with_teacher = tf.one_hot(tf.argmax(code_output_softmax_with_teacher, axis=2), depth = 512)
-                code_loss_with_teacher = codes_loss(code_output_with_teacher, labels.codes,
+                code_loss_with_teacher = 0.1*codes_loss(code_output_raw_with_teacher, labels.codes,
                                                   labels.code_loss_mask, params.code_loss_type)
                 done_loss_with_teacher = binary_loss(stop_token_with_teacher, labels.done, labels.binary_loss_mask)
                 loss_with_teacher = code_loss_with_teacher + done_loss_with_teacher + regularization_loss
