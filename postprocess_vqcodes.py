@@ -51,16 +51,17 @@ def decode_prediction_result(parsed):
 
 
 
-datadir = "/home/smg/v-j-williams/workspace/external_modified/prediction/vctk/"
+exp = sys.argv[1]
+datadir = "/gs/hs0/tgh-20IAA/jenn/taco_exp/prediction/"+exp+"/"
 tfiles = glob.glob(datadir+"/*.tfrecord")
 print(tfiles)
-outdir = "/home/smg/v-j-williams/workspace/external_modified/synth/vctk/"
+outdir = "/gs/hs0/tgh-20IAA/jenn/taco_exp/synth/"+exp+"/"
 
 
 txtlist = []
 predlist = []
 truthlist = []
-synthoutdir = "/home/smg/v-j-williams/workspace/tsubame_work/special/mt_lists/"
+synthoutdir = "/gs/hs0/tgh-20IAA/jenn//special/mt_lists/"
 
 sess = tf.InteractiveSession()
 with sess.as_default():
@@ -99,13 +100,13 @@ with sess.as_default():
             predlist.append(" ".join(codes_pred_list))
             truthlist.append( " ".join(codes_truth_list))
             
-output = open(synthoutdir+"tacotron.txt", "w")
+output = open(synthoutdir+"tacotron"+exp+".txt", "w")
 output.write("\n".join(txtlist))
 output.close()
-output = open(synthoutdir+"tacotron.hypothesis.txt", "w")
+output = open(synthoutdir+"tacotron"+exp+".hypothesis.txt", "w")
 output.write("\n".join(predlist))
 output.close()
-output = open(synthoutdir+"tacotron.true.txt", "w")
+output = open(synthoutdir+"tacotron"+exp+".true.txt", "w")
 output.write("\n".join(truthlist))
 output.close()
                 
