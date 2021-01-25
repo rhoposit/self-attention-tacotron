@@ -21,8 +21,7 @@ class PreprocessedSourceData(namedtuple("PreprocessedSourceData",
                                          "source",
                                          "source_length",
                                          "speaker_id",
-                                         "age",
-                                         "gender",
+                                         "lang",
                                          "text"])):
 #                                         "phone",
 #                                         "phone_length",
@@ -54,8 +53,7 @@ class SourceDataForPrediction(namedtuple("SourceDataForPrediction",
                                           "source",
                                           "source_length",
                                           "speaker_id",
-                                          "age",
-                                          "gender",
+                                          "lang",
                                           "text",
                                           "codes",
                                           "codes_length",
@@ -69,9 +67,8 @@ def parse_preprocessed_source_data(proto):
         'key': tf.FixedLenFeature((), tf.string),
         'source': tf.FixedLenFeature((), tf.string),
         'source_length': tf.FixedLenFeature((), tf.int64),
-        'speaker_id': tf.FixedLenFeature((), tf.int64),
-        'age': tf.FixedLenFeature((), tf.int64),
-        'gender': tf.FixedLenFeature((), tf.int64),
+        'speaker_id': tf.FixedLenFeature((), tf.string),
+        'lang': tf.FixedLenFeature((), tf.string),
         'text': tf.FixedLenFeature((), tf.string),
     }
     parsed_features = tf.parse_single_example(proto, features)
@@ -86,8 +83,7 @@ def decode_preprocessed_source_data(parsed):
         source=source,
         source_length=parsed["source_length"],
         speaker_id=parsed["speaker_id"],
-        age=parsed["age"],
-        gender=parsed["gender"],
+        lang=parsed["lang"],
         text=parsed["text"])
 
 
@@ -139,8 +135,7 @@ class DatasetSource:
             source = inputs.source
             source_length = inputs.source_length
             text = inputs.text            
-            return SourceData(inputs.id, inputs.key, source, source_length, inputs.speaker_id, inputs.age,
-                              inputs.gender, text)
+            return SourceData(inputs.id, inputs.key, source, source_length, inputs.speaker_id, inputs.lang, text)
 
         return DatasetSource._decode_source(source).map(lambda inputs: convert(inputs))
 
@@ -150,7 +145,6 @@ class DatasetSource:
             r = hparams.outputs_per_step
             codes = target.codes
 
-            
             a = np.array([366])
             silence = np.zeros((a.size, 512))
             silence[np.arange(a.size),a] = 1
@@ -286,8 +280,7 @@ class ZippedDataset(DatasetBase):
                     source=tf.TensorShape([None]),
                     source_length=tf.TensorShape([]),
                     speaker_id=tf.TensorShape([]),
-                    age=tf.TensorShape([]),
-                    gender=tf.TensorShape([]),
+                    lang=tf.TensorShape([]),
                     text=tf.TensorShape([]),
                 ),
                 CodeData(
@@ -305,9 +298,8 @@ class ZippedDataset(DatasetBase):
                     key="",
                     source=tf.to_int64(0),
                     source_length=tf.to_int64(0),
-                    speaker_id=tf.to_int64(0),
-                    age=tf.to_int64(0),
-                    gender=tf.to_int64(-1),
+                    speaker_id="",
+                    lang="",
                     text="",
                 ),
                 CodeData(
@@ -355,8 +347,7 @@ class BatchedDataset(DatasetBase):
                 source=s.source,
                 source_length=s.source_length,
                 speaker_id=s.speaker_id,
-                age=s.age,
-                gender=s.gender,
+                lang=s.lang,
                 text=s.text,
                 codes=t.codes,
                 codes_length=t.codes,

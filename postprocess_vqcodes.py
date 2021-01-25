@@ -51,10 +51,16 @@ def decode_prediction_result(parsed):
 
 
 
-datadir = "/home/smg/v-j-williams/workspace/external_modified/prediction/"
+datadir = "/home/smg/v-j-williams/workspace/external_modified/prediction/vctk/"
 tfiles = glob.glob(datadir+"/*.tfrecord")
 print(tfiles)
-outdir = "/home/smg/v-j-williams/workspace/external_modified/synth"
+outdir = "/home/smg/v-j-williams/workspace/external_modified/synth/vctk/"
+
+
+txtlist = []
+predlist = []
+truthlist = []
+synthoutdir = "/home/smg/v-j-williams/workspace/tsubame_work/special/mt_lists/"
 
 sess = tf.InteractiveSession()
 with sess.as_default():
@@ -62,24 +68,13 @@ with sess.as_default():
         for example in tf.python_io.tf_record_iterator(record):
             features = parse_prediction_result(example)
             result = decode_prediction_result(features)
-#            print("* features", features)
-#            print("* result", result)
             fid = result.key.eval().decode('utf-8')
             truth = np.array(result.ground_truth_codes.eval()).astype(int)
             preds = np.array(result.codes.eval()).astype(int)
             text = result.text.eval().decode('utf-8')
-            print(preds[0].shape)
             codes_pred = np.argmax(preds, axis=1)
-            codes_truth = np.argmax(truth, axis=1)
-
-            
+            codes_truth = np.argmax(truth, axis=1)            
             print(text)
-            print(preds[1])
-            print(codes_pred)
-            print(codes_pred.shape)
-            print(truth[1])
-            print(codes_truth)
-            print(codes_truth.shape)
             print(fid)
 
             # save these into a file, in a directory to synthesize from
@@ -99,7 +94,18 @@ with sess.as_default():
             output = open(outfile+".truth.txt", "w")
             output.write(outstring)
             output.close()
-
             
-#            np.savetxt(outfile+".preds.txt", codes_pred, delimiter=' ', fmt='%i')
-#            np.savetxt(outfile+".truth.txt", codes_truth, delimiter=' ', fmt='%i') 
+            txtlist.append(fid+".txt")
+            predlist.append(" ".join(codes_pred_list))
+            truthlist.append( " ".join(codes_truth_list))
+            
+output = open(synthoutdir+"tacotron.txt", "w")
+output.write("\n".join(txtlist))
+output.close()
+output = open(synthoutdir+"tacotron.hypothesis.txt", "w")
+output.write("\n".join(predlist))
+output.close()
+output = open(synthoutdir+"tacotron.true.txt", "w")
+output.write("\n".join(truthlist))
+output.close()
+                

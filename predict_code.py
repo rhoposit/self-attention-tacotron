@@ -68,7 +68,7 @@ def predict(hparams,
         prediction_filename = f"{key}.tfrecord"
         prediction_filepath = os.path.join(output_dir, prediction_filename)
         write_prediction_result(v.id, key, alignments, codes, v.ground_truth_codes, text, v.source, v.accent_type, prediction_filepath)
-        if count == 3:
+        if count == 10:
             sys.exit()
 
 

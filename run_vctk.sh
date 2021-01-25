@@ -2,7 +2,7 @@
 
 #python preprocess_vqcodes.py --source-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk /home/smg/v-j-williams/workspace/external_modified/data/vctk_source
 
-#python preprocess_vqcodes.py --target-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk /home/smg/v-j-williams/workspace/external_modified/data/vctk_target
+python preprocess_vqcodes.py --target-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk /home/smg/v-j-williams/workspace/external_modified/data/vctk_half_target
 
 
 
@@ -15,8 +15,8 @@ export TF_FORCE_GPU_ALLOW_GROWTH=true
 # TRAINING command to run
 DATASET=vqcodes
 SOURCE_DATA=/home/smg/v-j-williams/workspace/external_modified/data/vctk_source
-TARGET_DATA=/home/smg/v-j-williams/workspace/external_modified/data/vctk_target
-CHECKPOINTS=/home/smg/v-j-williams/workspace/external_modified/checkpoints/vctk
+TARGET_DATA=/home/smg/v-j-williams/workspace/external_modified/data/vctk_half_target
+CHECKPOINTS=/home/smg/v-j-williams/workspace/external_modified/checkpoints/vctk_small
 VCTK_SELECTED_LIST=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes
 HPARAM_FILE=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json
 

@@ -28,8 +28,7 @@ def write_preprocessed_target_data(_id: int, key: str, codes: np.ndarray, codes_
     write_tfrecord(example, filename)
 
 
-def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text, speaker_id, age, gender,
-                                   filename: str):
+def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text, speaker_id, lang, filename: str):
     raw_source = source.tostring()
     example = tf.train.Example(features=tf.train.Features(feature={
         'id': int64_feature([_id]),
@@ -37,14 +36,13 @@ def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text,
         'source': bytes_feature([raw_source]),
         'source_length': int64_feature([len(source)]),
         'text': bytes_feature([text.encode('utf-8')]),
-        'speaker_id': int64_feature([speaker_id]),
-        'age': int64_feature([age]),
-        'gender': int64_feature([gender]),
+        'speaker_id': bytes_feature([speaker_id]),
+        'lang': bytes_feature([lang]),
     }))
     write_tfrecord(example, filename)
 
 
-class SpeakerInfo(namedtuple("SpeakerInfo", ["id", "age", "gender"])):
+class SpeakerInfo(namedtuple("SpeakerInfo", ["id", "lang"])):
     pass
 
 
@@ -82,7 +80,7 @@ class TargetRDD:
 
 class CODES:
 
-    def __init__(self, in_dir, out_dir, hparams, speaker_info_filename='speaker-info.txt'):
+    def __init__(self, in_dir, out_dir, hparams, speaker_info_filename='siwis-speaker-info.txt'):
         self.in_dir = in_dir
         self.out_dir = out_dir
         self.speaker_info_filename = speaker_info_filename
@@ -116,17 +114,18 @@ class CODES:
         return map(self._process_code, rdd)
 
     def _load_speaker_info(self):
-        with open(os.path.join(self.in_dir, self.speaker_info_filename), mode='r', encoding='utf8') as f:
-            for l in f.readlines()[1:]:
+        with open(self.speaker_info_filename, mode='r', encoding='utf8') as f:
+            for l in f.readlines():
                 si = l.split()
-                gender = 0 if si[2] == 'F' else 1
-                if str(si[0]) != "315":  # FixMe: Why 315 is missing?
-                    yield SpeakerInfo(int(si[0]), int(si[1]), gender)
-
+                yield SpeakerInfo(si[0], si[1])
+                    
     def _process_code(self, record: TxtCodeRecord):
         with open(os.path.join(self.in_dir, record.code_path), mode='r', encoding='utf8') as f:
             txt = f.readline().rstrip("\n")
             if len(txt.split("\t")) == 2:
+#                print(f)
+#                print("text: ", txt.split("\t")[0])
+#                print("codes:", txt.split("\t")[1])
                 txt = txt.split("\t")[1]
                 codelist = txt.split(" ")
                 codeints = [int(c) for c in codelist if c != ""]
@@ -148,5 +147,5 @@ class CODES:
             sequence, clean_text = text_to_sequence(txt, basic_cleaners)
             source = np.array(sequence, dtype=np.int64)
             file_path = os.path.join(self.out_dir, f"{record.key}.source.tfrecord")
-            write_preprocessed_source_data(record.id, record.key, source, clean_text, record.speaker_info.id, record.speaker_info.age, record.speaker_info.gender, file_path)
+            write_preprocessed_source_data(record.id, record.key, source, clean_text, record.speaker_info.id, record.speaker_info.lang, file_path)
             return record.key

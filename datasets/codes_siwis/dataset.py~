@@ -21,8 +21,7 @@ class PreprocessedSourceData(namedtuple("PreprocessedSourceData",
                                          "source",
                                          "source_length",
                                          "speaker_id",
-                                         "age",
-                                         "gender",
+                                         "lang",
                                          "text"])):
 #                                         "phone",
 #                                         "phone_length",
@@ -54,8 +53,7 @@ class SourceDataForPrediction(namedtuple("SourceDataForPrediction",
                                           "source",
                                           "source_length",
                                           "speaker_id",
-                                          "age",
-                                          "gender",
+                                          "lang",
                                           "text",
                                           "codes",
                                           "codes_length",
@@ -70,7 +68,6 @@ def parse_preprocessed_source_data(proto):
         'source': tf.FixedLenFeature((), tf.string),
         'source_length': tf.FixedLenFeature((), tf.int64),
         'speaker_id': tf.FixedLenFeature((), tf.int64),
-        'age': tf.FixedLenFeature((), tf.int64),
         'gender': tf.FixedLenFeature((), tf.int64),
         'text': tf.FixedLenFeature((), tf.string),
     }
@@ -150,7 +147,6 @@ class DatasetSource:
             r = hparams.outputs_per_step
             codes = target.codes
 
-            
             a = np.array([366])
             silence = np.zeros((a.size, 512))
             silence[np.arange(a.size),a] = 1
