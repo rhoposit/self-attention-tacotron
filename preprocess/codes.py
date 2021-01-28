@@ -93,11 +93,13 @@ class CODES:
     def list_files(self):
         def code_files(speaker_info: SpeakerInfo):
             code_dir = self.in_dir
-            return [os.path.join(code_dir, code_file) for code_file in sorted(os.listdir(code_dir)) if code_file.endswith('.txt')]
+            spk = speaker_info.id
+            return [os.path.join(code_dir, code_file) for code_file in sorted(os.listdir(code_dir)) if (code_file.endswith('.txt') and code_file.startswith(spk))]
 
         def text_files(speaker_info: SpeakerInfo):
             txt_dir = self.in_dir
-            return [os.path.join(txt_dir, txt_file) for txt_file in sorted(os.listdir(txt_dir)) if txt_file.endswith('.txt')]
+            spk = speaker_info.id
+            return [os.path.join(txt_dir, txt_file) for txt_file in sorted(os.listdir(txt_dir)) if (txt_file.endswith('.txt') and txt_file.startswith(spk)]
 
         def text_and_code_records(file_pairs, speaker_info):
             def create_record(txt_f, code_f, speaker_info):
