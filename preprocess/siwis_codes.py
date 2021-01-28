@@ -36,8 +36,8 @@ def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text,
         'source': bytes_feature([raw_source]),
         'source_length': int64_feature([len(source)]),
         'text': bytes_feature([text.encode('utf-8')]),
-        'speaker_id': bytes_feature([speaker_id]),
-        'lang': bytes_feature([lang]),
+        'speaker_id': bytes_feature([speaker_id.encode('utf-8')]),
+        'lang': bytes_feature([lang.encode('utf-8')]),
     }))
     write_tfrecord(example, filename)
 

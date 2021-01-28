@@ -23,9 +23,6 @@ class PreprocessedSourceData(namedtuple("PreprocessedSourceData",
                                          "speaker_id",
                                          "lang",
                                          "text"])):
-#                                         "phone",
-#                                         "phone_length",
-#                                         "phone_txt"])):
     pass
 
 
@@ -35,8 +32,7 @@ class SourceData(namedtuple("SourceData",
                              "source",
                              "source_length",
                              "speaker_id",
-                             "age",
-                             "gender",
+                             "lang",
                              "text", ])):
     pass
 

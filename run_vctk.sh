@@ -2,7 +2,7 @@
 
 #python preprocess_vqcodes.py --source-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk /home/smg/v-j-williams/workspace/external_modified/data/vctk_source
 
-python preprocess_vqcodes.py --target-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk /home/smg/v-j-williams/workspace/external_modified/data/vctk_half_target
+#python preprocess_vqcodes.py --target-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk /home/smg/v-j-williams/workspace/external_modified/data/vctk_target0 0 170
 
 
 
@@ -15,16 +15,15 @@ export TF_FORCE_GPU_ALLOW_GROWTH=true
 # TRAINING command to run
 DATASET=vqcodes
 SOURCE_DATA=/home/smg/v-j-williams/workspace/external_modified/data/vctk_source
-TARGET_DATA=/home/smg/v-j-williams/workspace/external_modified/data/vctk_half_target
-CHECKPOINTS=/home/smg/v-j-williams/workspace/external_modified/checkpoints/vctk_small
+TARGET_DATA=/home/smg/v-j-williams/workspace/external_modified/data/vctk_target0
+CHECKPOINTS=/home/smg/v-j-williams/workspace/external_modified/checkpoints/vctk0
 VCTK_SELECTED_LIST=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes
 HPARAM_FILE=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json
 
 export CUDA_VISIBLE_DEVICES=0
 python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
 
-#--multi-gpus
+OUTPUT_DIR=/home/smg/v-j-williams/workspace/external_modified/prediction/vctk0
+#python predict_code.py  --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE --output-dir=$OUTPUT_DIR
 
-
-# INFERENCE command to run
-#python synthesize.py  --dataset=$DATASET --data-root=$DATA --checkpoint-dir=$CHECKPOINTS --postnet-checkpoint-dir=</path/to/postnet/model/dir> --hparams=$HPARAM
+#python postprocess_vqcodes.py vctk0

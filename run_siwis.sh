@@ -2,7 +2,7 @@
 
 python preprocess_siwisvq.py --source-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis /home/smg/v-j-williams/workspace/external_modified/data/siwis_source
 
-python preprocess_siwisvq.py --target-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis /home/smg/v-j-williams/workspace/external_modified/data/siwis_half_target
+#python preprocess_siwisvq.py --target-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis /home/smg/v-j-williams/workspace/external_modified/data/siwis_half_target
 
 
 
@@ -23,8 +23,7 @@ HPARAM_FILE=/home/smg/v-j-williams/workspace/external_modified/self_attention_ta
 export CUDA_VISIBLE_DEVICES=0
 #python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
 
-#--multi-gpus
+OUTPUT_DIR=/home/smg/v-j-williams/workspace/external_modified/prediction/siwis
+#python predict_code.py  --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE --output-dir=$OUTPUT_DIR
 
-
-# INFERENCE command to run
-#python synthesize.py  --dataset=$DATASET --data-root=$DATA --checkpoint-dir=$CHECKPOINTS --postnet-checkpoint-dir=</path/to/postnet/model/dir> --hparams=$HPARAM
+#python postprocess_vqcodes.py siwis

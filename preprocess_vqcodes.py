@@ -5,7 +5,7 @@
 # ==============================================================================
 """
 Preprocess VCTK dataset
-usage: preprocess_vctk.py [options] <in_dir> <out_dir>
+usage: preprocess_vctk.py [options] <in_dir> <out_dir> <version> <num_codes>
 
 options:
     --hparams=<parmas>                  Ad-hoc replacement of hyper parameters. [default: ].
@@ -29,8 +29,11 @@ if __name__ == "__main__":
     args = docopt(__doc__)
     in_dir = args["<in_dir>"]
     out_dir = args["<out_dir>"]
+    version = args["<version>"]
+    num_codes = args["<num_codes>"]
     source_only = args["--source-only"]
     target_only = args["--target-only"]
+
 
     if args["--hparam-json-file"]:
         with open(args["--hparam-json-file"]) as f:
@@ -51,7 +54,7 @@ if __name__ == "__main__":
         process_target = True
 
     from preprocess.codes import CODES
-    instance = CODES(in_dir, out_dir, hparams)
+    instance = CODES(in_dir, out_dir, version, num_codes, hparams)
 
 #    sc = SparkContext()
 

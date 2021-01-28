@@ -43,6 +43,7 @@ def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text,
     }))
     write_tfrecord(example, filename)
 
+    
 
 class SpeakerInfo(namedtuple("SpeakerInfo", ["id", "age", "gender"])):
     pass
@@ -82,11 +83,13 @@ class TargetRDD:
 
 class CODES:
 
-    def __init__(self, in_dir, out_dir, hparams, speaker_info_filename='speaker-info.txt'):
+    def __init__(self, in_dir, out_dir, version, num_codes, hparams, speaker_info_filename='speaker-info.txt'):
         self.in_dir = in_dir
         self.out_dir = out_dir
         self.speaker_info_filename = speaker_info_filename
-
+        self.version = int(version)
+        self.num_codes = int(num_codes)
+        
     def list_files(self):
         def code_files(speaker_info: SpeakerInfo):
             code_dir = self.in_dir
@@ -116,7 +119,7 @@ class CODES:
         return map(self._process_code, rdd)
 
     def _load_speaker_info(self):
-        with open(os.path.join(self.in_dir, self.speaker_info_filename), mode='r', encoding='utf8') as f:
+        with open(self.speaker_info_filename, mode='r', encoding='utf8') as f:
             for l in f.readlines()[1:]:
                 si = l.split()
                 gender = 0 if si[2] == 'F' else 1
@@ -132,9 +135,11 @@ class CODES:
                 codeints = [int(c) for c in codelist if c != ""]
 
                 # use this when using half of the codes
-                codeints = codeints[::2]
+                start = self.version-1
+                if start >= 0:
+                    codeints = codeints[start::5]
                 a = np.array(codeints)
-                codes = np.zeros((a.size, 512))
+                codes = np.zeros((a.size, self.num_codes))
                 codes[np.arange(a.size),a] = 1
                 codes = np.array(codes, np.float32)
                 codes_length = a.size
