@@ -1,7 +1,7 @@
 #!/bin/sh
 #$ -cwd
 #$ -l q_node=1
-#$ -l h_rt=00:20:00
+#$ -l h_rt=01:00:00
 #$ -N vctk0
 #$ -o /gs/hs0/tgh-20IAA/jenn/taco_exp/log/vctk0.out
 #$ -e /gs/hs0/tgh-20IAA/jenn/taco_exp/log/vctk0.err
@@ -42,9 +42,9 @@ VCTK_SELECTED_LIST=/gs/hs0/tgh-20IAA/jenn/taco_exp/self_attention_tacotron/examp
 HPARAM_FILE=/gs/hs0/tgh-20IAA/jenn/taco_exp/self_attention_tacotron/examples/codes/self-attention-tacotron.json
 
 export CUDA_VISIBLE_DEVICES=0
-#python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
+python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
 
 OUTPUT_DIR=/gs/hs0/tgh-20IAA/jenn/taco_exp/prediction/vctk0
 python predict_code.py  --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE --output-dir=$OUTPUT_DIR
 
-python postprocess_vqcodes.py vctk0
+python tsu_postprocess_vqcodes.py vctk0
