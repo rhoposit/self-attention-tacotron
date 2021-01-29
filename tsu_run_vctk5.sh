@@ -1,11 +1,12 @@
 #!/bin/sh
 #$ -cwd
 #$ -l q_node=1
-#$ -l h_rt=01:00:00
+#$ -l h_rt=00:30:00
 #$ -N vctk5
 #$ -o /gs/hs0/tgh-20IAA/jenn/taco_exp/log/vctk5.out
 #$ -e /gs/hs0/tgh-20IAA/jenn/taco_exp/log/vctk5.err
 #$ -m e
+#$ -p -3
 #$ -M j.williams@ed.ac.uk
 #$ -v GPU_COMPUTE_MODE=0
 
@@ -23,7 +24,7 @@ conda activate taco
 
 #python preprocess_vqcodes.py --source-only --hparam-json-file=/gs/hs0/tgh-20IAA/jenn/taco_exp/self_attention_tacotron/examples/codes/self-attention-tacotron.json /gs/hs0/tgh-20IAA/jenn/special/L1_dat_files/sys5/vctk_753011/all_vctk /gs/hs0/tgh-20IAA/jenn/taco_exp/data/vctk_source
 
-#python preprocess_vqcodes.py --target-only --hparam-json-file=/gs/hs0/tgh-20IAA/jenn/taco_exp/self_attention_tacotron/examples/codes/self-attention-tacotron.json /gs/hs0/tgh-20IAA/jenn/special/L1_dat_files/sys5/vctk_753011/all_vctk /gs/hs0/tgh-20IAA/jenn/taco_exp/data/vctk_target0 0 170
+#python preprocess_vqcodes.py --target-only --hparam-json-file=/gs/hs0/tgh-20IAA/jenn/taco_exp/self_attention_tacotron/examples/codes/self-attention-tacotron.json /gs/hs0/tgh-20IAA/jenn/special/L1_dat_files/sys5/vctk_753011/all_vctk /gs/hs0/tgh-20IAA/jenn/taco_exp/data/vctk_target5 5 170
 
 
 
@@ -36,8 +37,8 @@ export TF_FORCE_GPU_ALLOW_GROWTH=true
 # TRAINING command to run
 DATASET=vqcodes
 SOURCE_DATA=/gs/hs0/tgh-20IAA/jenn/taco_exp/data/vctk_source
-TARGET_DATA=/gs/hs0/tgh-20IAA/jenn/taco_exp/data/vctk_target0
-CHECKPOINTS=/gs/hs0/tgh-20IAA/jenn/taco_exp/checkpoints/vctk5
+TARGET_DATA=/gs/hs0/tgh-20IAA/jenn/taco_exp/data/vctk_target5
+CHECKPOINTS=/gs/hs0/tgh-20IAA/jenn/taco_exp/checkpoints/vctk5_small
 VCTK_SELECTED_LIST=/gs/hs0/tgh-20IAA/jenn/taco_exp/self_attention_tacotron/examples/codes
 HPARAM_FILE=/gs/hs0/tgh-20IAA/jenn/taco_exp/self_attention_tacotron/examples/codes/self-attention-tacotron.json
 
@@ -45,6 +46,6 @@ export CUDA_VISIBLE_DEVICES=0
 python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
 
 OUTPUT_DIR=/gs/hs0/tgh-20IAA/jenn/taco_exp/prediction/vctk5
-python predict_code.py  --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE --output-dir=$OUTPUT_DIR
+#python predict_code.py  --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE --output-dir=$OUTPUT_DIR
 
-python tsu_postprocess_vqcodes.py vctk5
+python postprocess_vqcodes_validation.py vctk5 1500
