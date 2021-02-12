@@ -18,12 +18,17 @@ from modules.rnn_wrappers import DecoderMgcLf0PreNetWrapper
 
 @composite
 def target_tensor(draw, batch_size, target_dim=integers(2, 20).filter(lambda x: x % 2 == 0), t_factor=integers(2, 8),
-                  r=integers(1, 2), elements=integers(-1, 1)):
+                  r=integers(1, 2)):
     r = draw(r)
     t = draw(t_factor) * r
     target_dim = draw(target_dim)
     c = target_dim
-    btc = draw(arrays(dtype=np.float32, shape=[batch_size, t, c], elements=elements))
+    bt = draw(arrays(dtype=np.float32, shape=[batch_size, t], elements=integers(0, c - 1)))
+    btc = np.zeros([batch_size, t, c], dtype=np.float32)
+    # one hot
+    for b in range(batch_size):
+        btc[b][np.arange(t), bt[b].astype(np.int32)] = 1.0
+
     target_lengths = np.repeat(t, batch_size)
     return btc, target_lengths, r, target_dim
 
