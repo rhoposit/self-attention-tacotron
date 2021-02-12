@@ -14,7 +14,7 @@ from modules.rnn_wrappers import RNNStateHistoryWrapper, TransformerWrapper, \
     OutputMgcLf0AndStopTokenWrapper, DecoderMgcLf0PreNetWrapper, OutputAndStopTokenTransparentWrapper, \
     OutputMgcLf0AndStopTokenTransparentWrapper
 from modules.helpers import TransformerTrainingHelper, TrainingMgcLf0Helper, ValidationMgcLf0Helper, \
-    StopTokenBasedMgcLf0InferenceHelper
+    StopTokenBasedMgcLf0InferenceHelper, OneHotValidationHelper
 from modules.multi_speaker_modules import MultiSpeakerPreNet
 from tacotron2.tacotron.modules import PreNet, CBHG, Conv1d, HighwayNet, ZoneoutLSTMCell
 from tacotron2.tacotron.tacotron_v1 import DecoderRNNV1
@@ -729,11 +729,11 @@ class RNNTransformer:
                                            self.num_mels,
                                            self.outputs_per_step,
                                            n_feed_frame=self.n_feed_frame) if is_training \
-            else ValidationHelper(target, self._batch_size,
-                                  self.num_mels,
-                                  self.outputs_per_step,
-                                  n_feed_frame=self.n_feed_frame,
-                                  teacher_forcing=teacher_forcing) if is_validation \
+            else OneHotValidationHelper(target, self._batch_size,
+                                        self.num_mels,
+                                        self.outputs_per_step,
+                                        n_feed_frame=self.n_feed_frame,
+                                        teacher_forcing=teacher_forcing) if is_validation \
             else StopTokenBasedInferenceHelper(self._batch_size,
                                                self.num_mels,
                                                self.outputs_per_step,
@@ -756,8 +756,13 @@ class RNNTransformer:
                                                  self.transformers,
                                                  (decoder_outputs, []))
             mel_output = self.out_projection(transformed)
+            undo_reduction = tf.reshape(mel_output, shape=[self._batch_size,
+                                                           tf.shape(mel_output)[1],
+                                                           self.outputs_per_step,
+                                                           self.num_mels])
+            predicted_samples = tf.argmax(undo_reduction, axis=-1, output_type=tf.int32)
             stop_token = self.stop_token_projection(transformed)
-            return mel_output, stop_token, final_decoder_state
+            return mel_output, stop_token, predicted_samples, final_decoder_state
 
         else:
             transformer_cell = TransformerWrapper(
@@ -769,13 +774,14 @@ class RNNTransformer:
 
             decoder_initial_state = output_and_done_cell.zero_state(self._batch_size, dtype=self._output_dtype)
 
-            ((decoder_outputs, stop_token), _), final_decoder_state, _ = tf.contrib.seq2seq.dynamic_decode(
+            ((decoder_outputs, stop_token),
+             predicted_samples), final_decoder_state, _ = tf.contrib.seq2seq.dynamic_decode(
                 BasicDecoder(output_and_done_cell, helper, decoder_initial_state),
                 scope=self._decoder_scope,
                 maximum_iterations=self.max_iters,
                 parallel_iterations=10,
                 swap_memory=True)  # Huge memory consumption at inference time
-            return decoder_outputs, stop_token, final_decoder_state
+            return decoder_outputs, stop_token, predicted_samples, final_decoder_state
 
 
 class MgcLf0RNNTransformer:
