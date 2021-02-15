@@ -11,16 +11,18 @@ import tensorflow as tf
 import numpy as np
 np.set_printoptions(threshold=sys.maxsize)
 from pyspark import RDD, StorageLevel
-from utils.tfrecord import write_tfrecord, int64_feature, bytes_feature
-from preprocess.cleaners import basic_cleaners
+from utils.tfrecord import write_tfrecord, write_phones, int64_feature, bytes_feature
+from preprocess.cleaners import basic_cleaners, english_cleaners
 from preprocess.text import text_to_sequence
+from extensions.flite import Flite
 
 
-def write_preprocessed_target_data(_id: int, key: str, codes: np.ndarray, codes_length: int, filename: str):
+def write_preprocessed_target_data(_id: int, key: str, codes: np.ndarray, codes_length: int, lang, filename: str):
     raw_codes = codes.tostring()
     example = tf.train.Example(features=tf.train.Features(feature={
         'id': int64_feature([_id]),
         'key': bytes_feature([key.encode('utf-8')]),
+        'lang': bytes_feature([lang.encode('utf-8')]),
         'codes': bytes_feature([raw_codes]),
         'codes_length': int64_feature([codes_length]),
         'codes_width': int64_feature([codes.shape[1]]),
@@ -28,7 +30,7 @@ def write_preprocessed_target_data(_id: int, key: str, codes: np.ndarray, codes_
     write_tfrecord(example, filename)
 
 
-def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text, speaker_id, lang, filename: str):
+def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text, phones: np.ndarray, phone_txt, speaker_id, lang, filename: str):
     raw_source = source.tostring()
     example = tf.train.Example(features=tf.train.Features(feature={
         'id': int64_feature([_id]),
@@ -36,11 +38,15 @@ def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text,
         'source': bytes_feature([raw_source]),
         'source_length': int64_feature([len(source)]),
         'text': bytes_feature([text.encode('utf-8')]),
-        'speaker_id': bytes_feature([speaker_id.encode('utf-8')]),
+        'phone': bytes_feature([phones.tostring()]),
+        'phone_length': int64_feature([len(phones)]),
+        'phone_txt': bytes_feature([phone_txt.encode('utf-8')]),
+        'speaker_id':bytes_feature([speaker_id.encode('utf-8')]),
         'lang': bytes_feature([lang.encode('utf-8')]),
     }))
     write_tfrecord(example, filename)
-
+    write_phones(phone_txt, filename.split(".")[0]+".txt")
+    
 
 class SpeakerInfo(namedtuple("SpeakerInfo", ["id", "lang"])):
     pass
@@ -80,10 +86,13 @@ class TargetRDD:
 
 class CODES:
 
-    def __init__(self, in_dir, out_dir, hparams, speaker_info_filename='siwis-speaker-info.txt'):
+    def __init__(self, in_dir, out_dir, version, num_codes, hparams, speaker_info_filename='siwis-speaker-info.txt'):
         self.in_dir = in_dir
         self.out_dir = out_dir
         self.speaker_info_filename = speaker_info_filename
+        self.g2p = Flite(hparams.flite_binary_path, hparams.phoneset_path) if hparams.phoneme == 'flite' else None
+        self.version = int(version)
+        self.num_codes = int(num_codes)
 
     def list_files(self):
         def code_files(speaker_info: SpeakerInfo):
@@ -121,6 +130,8 @@ class CODES:
                     
     def _process_code(self, record: TxtCodeRecord):
         with open(os.path.join(self.in_dir, record.code_path), mode='r', encoding='utf8') as f:
+            lang = record.code_path.split("/")[-1].split("_")[0]
+#            print(lang)
             txt = f.readline().rstrip("\n")
             if len(txt.split("\t")) == 2:
 #                print(f)
@@ -130,22 +141,32 @@ class CODES:
                 codelist = txt.split(" ")
                 codeints = [int(c) for c in codelist if c != ""]
 
-                # use this when using half of the codes
-                codeints = codeints[::2]
+                start = self.version-1
+                if start >= 0:
+                    codeints = codeints[start::3]
                 a = np.array(codeints)
-                codes = np.zeros((a.size, 512))
+                codes = np.zeros((a.size, self.num_codes))
                 codes[np.arange(a.size),a] = 1
                 codes = np.array(codes, np.float32)
                 codes_length = a.size
                 file_path = os.path.join(self.out_dir, f"{record.key}.target.tfrecord")
-                write_preprocessed_target_data(record.id, record.key, codes, codes_length, file_path)
+                write_preprocessed_target_data(record.id, record.key, codes, codes_length, lang, file_path)
                 return record.key
 
     def _process_txt(self, record: TxtCodeRecord):
+        print(self.in_dir)
+        print(record.txt_path)
         with open(os.path.join(self.in_dir, record.txt_path), mode='r', encoding='utf8') as f:
-            txt = f.readline().rstrip("\n").split("\t")[0]
-            sequence, clean_text = text_to_sequence(txt, basic_cleaners)
+            lang = record.code_path.split("/")[-1].split("_")[0]
+#            print(lang)
+            txt = f.readline().rstrip("\n")
+            txt = txt.split("\t")[0]
+            txt = txt.replace('\x00', '')
+            txt = txt.replace('\x04', '')
+            sequence, clean_text = text_to_sequence(txt, english_cleaners)
+            phone_ids, phone_txt = self.g2p.convert_to_phoneme(clean_text) if self.g2p is not None else (None, None)
             source = np.array(sequence, dtype=np.int64)
+            phone_ids = np.array(phone_ids, dtype=np.int64) if phone_ids is not None else None
             file_path = os.path.join(self.out_dir, f"{record.key}.source.tfrecord")
-            write_preprocessed_source_data(record.id, record.key, source, clean_text, record.speaker_info.id, record.speaker_info.lang, file_path)
+            write_preprocessed_source_data(record.id, record.key, source, clean_text, phone_ids, phone_txt, record.speaker_info.id, lang, file_path)
             return record.key

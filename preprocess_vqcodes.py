@@ -5,7 +5,7 @@
 # ==============================================================================
 """
 Preprocess VCTK dataset
-usage: preprocess_vctk.py [options] <in_dir> <out_dir> <version> <num_codes>
+usage: preprocess_vctk.py [options] <in_dir> <out_dir> <data> <version> <num_codes>
 
 options:
     --hparams=<parmas>                  Ad-hoc replacement of hyper parameters. [default: ].
@@ -29,6 +29,7 @@ if __name__ == "__main__":
     args = docopt(__doc__)
     in_dir = args["<in_dir>"]
     out_dir = args["<out_dir>"]
+    data = args["<data>"]
     version = args["<version>"]
     num_codes = args["<num_codes>"]
     source_only = args["--source-only"]
@@ -53,9 +54,14 @@ if __name__ == "__main__":
         process_source = True
         process_target = True
 
-    from preprocess.codes import CODES
-    instance = CODES(in_dir, out_dir, version, num_codes, hparams)
+    if data == "vctk":
+        from preprocess.codes import CODES
+        instance = CODES(in_dir, out_dir, version, num_codes, hparams)
+    if data == "siwis":
+        from preprocess.siwis_codes import CODES
+        instance = CODES(in_dir, out_dir, version, num_codes, hparams)
 
+        
 #    sc = SparkContext()
 
     record_rdd = instance.list_files()

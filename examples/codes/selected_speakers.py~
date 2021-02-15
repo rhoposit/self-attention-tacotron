@@ -9,7 +9,7 @@ input = open(datfile, "r")
 data = input.read().split("\n")[:-1]
 input.close()
 
-SPK = ["p"+d.split(" ")[0] for d in data]
+SPK = [d.split(" ")[0] for d in data]
 print(SPK)
 KEEP = []
 

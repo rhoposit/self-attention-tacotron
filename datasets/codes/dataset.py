@@ -23,10 +23,10 @@ class PreprocessedSourceData(namedtuple("PreprocessedSourceData",
                                          "speaker_id",
                                          "age",
                                          "gender",
-                                         "text"])):
-#                                         "phone",
-#                                         "phone_length",
-#                                         "phone_txt"])):
+                                         "text",
+                                         "phone",
+                                         "phone_length",
+                                         "phone_txt"])):
     pass
 
 
@@ -73,13 +73,16 @@ def parse_preprocessed_source_data(proto):
         'age': tf.FixedLenFeature((), tf.int64),
         'gender': tf.FixedLenFeature((), tf.int64),
         'text': tf.FixedLenFeature((), tf.string),
+        'phone': tf.FixedLenFeature((), tf.string),
+        'phone_length': tf.FixedLenFeature((), tf.int64),
+        'phone_txt': tf.FixedLenFeature((), tf.string),
     }
     parsed_features = tf.parse_single_example(proto, features)
     return parsed_features
 
-
 def decode_preprocessed_source_data(parsed):
     source = tf.decode_raw(parsed['source'], tf.int64)
+    phone = tf.decode_raw(parsed['phone'], tf.int64)
     return PreprocessedSourceData(
         id=parsed["id"],
         key=parsed["key"],
@@ -88,7 +91,11 @@ def decode_preprocessed_source_data(parsed):
         speaker_id=parsed["speaker_id"],
         age=parsed["age"],
         gender=parsed["gender"],
-        text=parsed["text"])
+        text=parsed["text"],
+        phone=phone,
+        phone_length=parsed["phone_length"],
+        phone_txt=parsed["phone_txt"])
+
 
 
 class DatasetSource:
@@ -133,44 +140,47 @@ class DatasetSource:
             (self._prepare_source(self.source, self.hparams), self._prepare_target(self.target, self.hparams)))
         return ZippedDataset(zipped, self.hparams)
 
+
     @staticmethod
     def _prepare_source(source, hparams):
         def convert(inputs: PreprocessedSourceData):
-            source = inputs.source
-            source_length = inputs.source_length
-            text = inputs.text            
-            return SourceData(inputs.id, inputs.key, source, source_length, inputs.speaker_id, inputs.age,
-                              inputs.gender, text)
+            source = inputs.phone if hparams.source == 'phone' else inputs.source
+            source_length = inputs.phone_length if hparams.source == 'phone' else inputs.source_length
+            text = inputs.phone_txt if hparams.source == 'phone' else inputs.text
+            return SourceData(inputs.id, inputs.key, source, source_length, inputs.speaker_id, inputs.age, inputs.gender, text)
 
         return DatasetSource._decode_source(source).map(lambda inputs: convert(inputs))
 
+    
     @staticmethod
     def _prepare_target(target, hparams):
         def convert(target: PreprocessedCodeData):
             r = hparams.outputs_per_step
             codes = target.codes
-
             
-            a = np.array([366])
-            silence = np.zeros((a.size, 512))
+            a = np.array([170])
+            silence = np.zeros((a.size, 171))
             silence[np.arange(a.size),a] = 1
             silence = np.float32(silence)
 
-#            r = 2
             # paddings is outputs per step (tensor rank)
             paddings = [[r, r], [0, 0]]
-#            print("* paddings", paddings)
+            print("* paddings", paddings)
+
+            
 #            print("* codes", codes)
 #            print("* length", target.codes_length)
 #            print("* width", target.codes_width)
-#            codes = tf.Print(codes, [codes], "codes")
-#            tf.print(tf.shape(codes))
+#            codes = tf.Print(codes, [tf.shape(codes)], "codes")
 #            sys.exit()
             codes_with_silence = tf.pad(codes, paddings=paddings, mode="CONSTANT")
+#            codes_with_silence = tf.Print(codes_with_silence, [tf.shape(codes_with_silence)], "codes with silence")
 
             target_length = target.codes_length + 2 * r
 #            target_length = tf.constant(3000, name='target_length', dtype=tf.int64)
             padded_target_length = (target_length // r + 1) * r
+            print("target_length", target_length)
+            print("padded_target_length", padded_target_length)
 
             # spec and mel length must be multiple of outputs_per_step
             def padding_function(t):
@@ -193,7 +203,11 @@ class DatasetSource:
             # loss mask
             code_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
             binary_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-            
+#            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes shape\n")
+#            codes_length = tf.Print(target.codes_length, [target.codes_length], "\n* codes length shape\n")
+#            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "\n* code loss mask\n")
+#            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\n* binary loss mask\n")
+
             return CodeData(target.id, target.key, codes, target.codes_length, padded_target_length, done, code_loss_mask, binary_loss_mask)
 
         return DatasetSource._decode_target(target).map(lambda inputs: convert(inputs))
@@ -276,8 +290,8 @@ class ZippedDataset(DatasetBase):
             return tf.minimum(tf.to_int64(num_buckets), bucket_id)
 
         def reduce_func(unused_key, window: tf.data.Dataset):
-            a = np.array([366])
-            silence = np.zeros((a.size, 512))
+            a = np.array([170])
+            silence = np.zeros((a.size, 171))
             silence[np.arange(a.size),a] = 1
             return window.padded_batch(batch_size, padded_shapes=(
                 SourceData(
@@ -293,7 +307,7 @@ class ZippedDataset(DatasetBase):
                 CodeData(
                     id=tf.TensorShape([]),
                     key=tf.TensorShape([]),
-                    codes=tf.TensorShape([None,512]),
+                    codes=tf.TensorShape([None,171]),
                     codes_length=tf.TensorShape([]),
                     target_length=tf.TensorShape([]),
                     done=tf.TensorShape([None]),

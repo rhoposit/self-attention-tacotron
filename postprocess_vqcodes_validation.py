@@ -9,7 +9,7 @@ import re
 
 
 class PredictionResultCodes(namedtuple("PredictionResult",
-    ["id", "key", "codes", "codes_length", "codes_width", "ground_truth_codes","ground_truth_codes_length", "text"])): pass
+    ["id", "codes", "codes_length", "codes_width", "ground_truth_codes","ground_truth_codes_length", "text"])): pass
 
 class PredictionResult(namedtuple("PredictionResult",
     ["id", "key", "mel", "mel_length", "mel_width", "predicted_mel", "predicted_mel_length", "text"])):
@@ -34,14 +34,20 @@ def parse_prediction_result_codes(proto):
 
 def parse_prediction_result(proto):
     features = {
+        'global_step': tf.FixedLenFeature((), tf.int64),
+        'batch_size': tf.FixedLenFeature((), tf.int64),
         'id': tf.FixedLenFeature((), tf.int64),
-        'key': tf.FixedLenFeature((), tf.string),
-        'mel': tf.FixedLenFeature((), tf.string),
-        'mel_length': tf.FixedLenFeature((), tf.int64),
-        'mel_width': tf.FixedLenFeature((), tf.int64),
-        'predicted_mel': tf.FixedLenFeature((), tf.string),
-        'predicted_mel_length': tf.FixedLenFeature((), tf.int64),
+#        'key': tf.FixedLenFeature((), tf.string),
         'text': tf.FixedLenFeature((), tf.string),
+        'predicted_mel': tf.FixedLenFeature((), tf.string),
+        'ground_truth_mel': tf.FixedLenFeature((), tf.string),
+        'mel_length': tf.FixedLenFeature((), tf.int64),
+        'mel_length_without_padding': tf.FixedLenFeature((), tf.int64),
+        'predicted_mel_length': tf.FixedLenFeature((), tf.int64),
+        'mel_width': tf.FixedLenFeature((), tf.int64),
+#        'alignment': tf.FixedLenFeature((), tf.string),
+#        'alignment_source_length': tf.FixedLenFeature((), tf.int64),
+#        'alignment_target_length': tf.FixedLenFeature((), tf.int64),
     }
     parsed_features = tf.parse_single_example(proto, features)
     return parsed_features
@@ -73,10 +79,10 @@ def decode_prediction_result(parsed):
     codes_length = parsed['predicted_mel_length']
     codes = tf.decode_raw(parsed['predicted_mel'], tf.float32)
     ground_truth_codes_length = parsed['mel_length']
-    ground_truth_codes = tf.decode_raw(parsed['mel'], tf.float32)
+    ground_truth_codes = tf.decode_raw(parsed['ground_truth_mel'], tf.float32)
     return PredictionResultCodes(
         id=parsed['id'],
-        key=parsed['key'],
+#        key=parsed['key'],
         codes=tf.reshape(codes, shape=tf.stack([codes_length, codes_width], axis=0)),
         codes_length=codes_length,
         codes_width=codes_width,
@@ -88,7 +94,7 @@ def decode_prediction_result(parsed):
 
 exp = sys.argv[1]
 steps = sys.argv[2]
-datadir = "/home/smg/v-j-williams/workspace/external_modified/checkpoints/"+exp+"_small/*0"+steps+"_*.tfrecord"
+datadir = "/home/smg/v-j-williams/workspace/external_modified/checkpoints/"+exp+"/*0"+steps+"_*.tfrecord"
 print(datadir)
 tfiles = glob.glob(datadir)
 print(tfiles)
@@ -111,7 +117,7 @@ with sess.as_default():
             
             features = parse_prediction_result(example)
             result = decode_prediction_result(features)
-            fid = result.key.eval().decode('utf-8')
+            fid = result.id.eval()#.decode('utf-8')
             truth = np.array(result.ground_truth_codes.eval()).astype(int)
             preds = np.array(result.codes.eval()).astype(int)
             text = result.text.eval().decode('utf-8')
@@ -121,7 +127,7 @@ with sess.as_default():
             print(fid)
 
             # save these into a file, in a directory to synthesize from
-            outfile = outdir+"/"+fid
+            outfile = outdir+"/"+str(fid)
             output = open(outfile+".txt", "w")
             output.write(text)
             output.close()
@@ -138,7 +144,7 @@ with sess.as_default():
             output.write(outstring)
             output.close()
             
-            txtlist.append(fid+".txt")
+            txtlist.append(str(fid)+".txt")
             predlist.append(" ".join(codes_pred_list))
             truthlist.append( " ".join(codes_truth_list))
             

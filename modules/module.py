@@ -1452,7 +1452,7 @@ class DualSourceTransformerDecoder(tf.layers.Layer):
                  attention_rnn_out_units=256,
                  decoder_version="v1",  # v1 | v2
                  decoder_out_units=256,
-                 num_mels=512,
+                 num_mels=171,
                  outputs_per_step=2,
                  max_iters=200,
                  n_feed_frame=1,

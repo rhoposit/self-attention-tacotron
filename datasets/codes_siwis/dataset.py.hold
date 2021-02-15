@@ -21,12 +21,12 @@ class PreprocessedSourceData(namedtuple("PreprocessedSourceData",
                                          "source",
                                          "source_length",
                                          "speaker_id",
+#                                         "lang",
                                          "text",
                                          "phone",
                                          "phone_length",
                                          "phone_txt"])):
     pass
-
 
 class SourceData(namedtuple("SourceData",
                             ["id",
@@ -34,8 +34,10 @@ class SourceData(namedtuple("SourceData",
                              "source",
                              "source_length",
                              "speaker_id",
+#                             "lang",
                              "text", ])):
     pass
+
 
 
 class CodeData(
@@ -50,6 +52,7 @@ class SourceDataForPrediction(namedtuple("SourceDataForPrediction",
                                           "source",
                                           "source_length",
                                           "speaker_id",
+                                          "lang",
                                           "text",
                                           "codes",
                                           "codes_length",
@@ -63,7 +66,8 @@ def parse_preprocessed_source_data(proto):
         'key': tf.FixedLenFeature((), tf.string),
         'source': tf.FixedLenFeature((), tf.string),
         'source_length': tf.FixedLenFeature((), tf.int64),
-        'speaker_id': tf.FixedLenFeature((), tf.int64),
+        'speaker_id': tf.FixedLenFeature((), tf.string),
+        'lang': tf.FixedLenFeature((), tf.string),
         'text': tf.FixedLenFeature((), tf.string),
         'phone': tf.FixedLenFeature((), tf.string),
         'phone_length': tf.FixedLenFeature((), tf.int64),
@@ -71,6 +75,7 @@ def parse_preprocessed_source_data(proto):
     }
     parsed_features = tf.parse_single_example(proto, features)
     return parsed_features
+
 
 def decode_preprocessed_source_data(parsed):
     source = tf.decode_raw(parsed['source'], tf.int64)
@@ -81,11 +86,11 @@ def decode_preprocessed_source_data(parsed):
         source=source,
         source_length=parsed["source_length"],
         speaker_id=parsed["speaker_id"],
+#        lang=parsed["lang"],
         text=parsed["text"],
         phone=phone,
         phone_length=parsed["phone_length"],
         phone_txt=parsed["phone_txt"])
-
 
 
 class DatasetSource:
@@ -130,10 +135,10 @@ class DatasetSource:
             (self._prepare_source(self.source, self.hparams), self._prepare_target(self.target, self.hparams)))
         return ZippedDataset(zipped, self.hparams)
 
-
     @staticmethod
     def _prepare_source(source, hparams):
         def convert(inputs: PreprocessedSourceData):
+#            lang = inputs.lang
             source = inputs.phone if hparams.source == 'phone' else inputs.source
             source_length = inputs.phone_length if hparams.source == 'phone' else inputs.source_length
             text = inputs.phone_txt if hparams.source == 'phone' else inputs.text
@@ -148,9 +153,8 @@ class DatasetSource:
             r = hparams.outputs_per_step
             codes = target.codes
 
-            
-            a = np.array([0])
-            silence = np.zeros((a.size, 170))
+            a = np.array([366])
+            silence = np.zeros((a.size, 512))
             silence[np.arange(a.size),a] = 1
             silence = np.float32(silence)
 
@@ -191,11 +195,7 @@ class DatasetSource:
             # loss mask
             code_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
             binary_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-#            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes shape\n")
-#            codes_length = tf.Print(target.codes_length, [target.codes_length], "\n* codes length shape\n")
-#            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "\n* code loss mask\n")
-#            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\n* binary loss mask\n")
-
+            
             return CodeData(target.id, target.key, codes, target.codes_length, padded_target_length, done, code_loss_mask, binary_loss_mask)
 
         return DatasetSource._decode_target(target).map(lambda inputs: convert(inputs))
@@ -278,8 +278,8 @@ class ZippedDataset(DatasetBase):
             return tf.minimum(tf.to_int64(num_buckets), bucket_id)
 
         def reduce_func(unused_key, window: tf.data.Dataset):
-            a = np.array([0])
-            silence = np.zeros((a.size, 170))
+            a = np.array([366])
+            silence = np.zeros((a.size, 512))
             silence[np.arange(a.size),a] = 1
             return window.padded_batch(batch_size, padded_shapes=(
                 SourceData(
@@ -288,12 +288,13 @@ class ZippedDataset(DatasetBase):
                     source=tf.TensorShape([None]),
                     source_length=tf.TensorShape([]),
                     speaker_id=tf.TensorShape([]),
+ #                   lang=tf.TensorShape([]),
                     text=tf.TensorShape([]),
                 ),
                 CodeData(
                     id=tf.TensorShape([]),
                     key=tf.TensorShape([]),
-                    codes=tf.TensorShape([None,170]),
+                    codes=tf.TensorShape([None,512]),
                     codes_length=tf.TensorShape([]),
                     target_length=tf.TensorShape([]),
                     done=tf.TensorShape([None]),
@@ -305,7 +306,8 @@ class ZippedDataset(DatasetBase):
                     key="",
                     source=tf.to_int64(0),
                     source_length=tf.to_int64(0),
-                    speaker_id=tf.to_int64(0),
+                    speaker_id="",
+#                    lang="",
                     text="",
                 ),
                 CodeData(
@@ -353,6 +355,7 @@ class BatchedDataset(DatasetBase):
                 source=s.source,
                 source_length=s.source_length,
                 speaker_id=s.speaker_id,
+                lang=s.lang,
                 text=s.text,
                 codes=t.codes,
                 codes_length=t.codes,
