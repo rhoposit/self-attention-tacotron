@@ -5,7 +5,6 @@
 # ==============================================================================
 """  """
 
-
 import tensorflow as tf
 import numpy as np
 import uuid
@@ -18,12 +17,17 @@ from modules.rnn_wrappers import DecoderMgcLf0PreNetWrapper
 
 @composite
 def target_tensor(draw, batch_size, target_dim=integers(2, 20).filter(lambda x: x % 2 == 0), t_factor=integers(2, 8),
-                  r=integers(1, 2), elements=integers(-1, 1)):
+                  r=integers(1, 2)):
     r = draw(r)
     t = draw(t_factor) * r
     target_dim = draw(target_dim)
     c = target_dim
-    btc = draw(arrays(dtype=np.float32, shape=[batch_size, t, c], elements=elements))
+    bt = draw(arrays(dtype=np.float32, shape=[batch_size, t], elements=integers(0, c - 1)))
+    btc = np.zeros([batch_size, t, c], dtype=np.float32)
+    # one hot
+    for b in range(batch_size):
+        btc[b][np.arange(t), bt[b].astype(np.int32)] = 1.0
+
     target_lengths = np.repeat(t, batch_size)
     return btc, target_lengths, r, target_dim
 
@@ -63,23 +67,27 @@ class TransformerTest(tf.test.TestCase):
                                          dtype=target.dtype,
                                          output_dtype=target.dtype)
 
-            training_output, training_stop_token, training_state = transformer(target, is_training=True,
-                                                                               is_validation=False,
-                                                                               teacher_forcing=False,
-                                                                               memory_sequence_length=target_lengths)
+            training_output, training_stop_token, training_samples, training_state = transformer(target,
+                                                                                                 is_training=True,
+                                                                                                 is_validation=False,
+                                                                                                 teacher_forcing=False,
+                                                                                                 memory_sequence_length=target_lengths)
 
-            inference_output, inference_stop_token, inference_state = transformer(target, is_training=False,
-                                                                                  is_validation=True,
-                                                                                  teacher_forcing=True,
-                                                                                  memory_sequence_length=target_lengths)
+            inference_output, inference_stop_token, inference_samples, inference_state = transformer(target,
+                                                                                                     is_training=False,
+                                                                                                     is_validation=True,
+                                                                                                     teacher_forcing=True,
+                                                                                                     memory_sequence_length=target_lengths)
 
         with self.cached_session() as sess:
             sess.run(tf.global_variables_initializer())
             training_output_value, inference_output_value = sess.run([training_output, inference_output])
             training_stop_token_value, inference_stop_token_value = sess.run(
                 [training_stop_token, inference_stop_token])
+            training_sample_value, inference_sample_value = sess.run([training_samples, inference_samples])
             self.assertAllClose(training_output_value, inference_output_value)
             self.assertAllClose(training_stop_token_value, inference_stop_token_value)
+            self.assertAllClose(training_sample_value, inference_sample_value)
 
     @given(args=all_args())
     def test_equality_between_training_and_inference_of_mgc_f0(self, args):
