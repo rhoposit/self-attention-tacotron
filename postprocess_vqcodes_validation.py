@@ -54,7 +54,7 @@ def decode_prediction_result(parsed):
 
 exp = sys.argv[1]
 steps = sys.argv[2]
-datadir = r'/gs/hs0/tgh-20IAA/jenn/taco_exp/checkpoints/'+exp+'/.*0'+steps+'_.*\.tfrecord'
+datadir = "/gs/hs0/tgh-20IAA/jenn/taco_exp/checkpoints/"+exp+"_small/*0"+steps+"_*.tfrecord"
 print(datadir)
 tfiles = glob.glob(datadir)
 #tfiles = glob_re(r'.*0'+steps+'_.*\.tfrecord', os.listdir())
