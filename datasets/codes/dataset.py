@@ -160,12 +160,15 @@ class DatasetSource:
             
             a = np.array([170])
             silence = np.zeros((a.size, 171))
+            print(silence.shape, a.size, a)
             silence[np.arange(a.size),a] = 1
             silence = np.float32(silence)
+            print("silence shape", silence.shape)
+            print(silence)
 
             # paddings is outputs per step (tensor rank)
             paddings = [[r, r], [0, 0]]
-            print("* paddings", paddings)
+#            print("* paddings", paddings)
 
             
 #            print("* codes", codes)
@@ -177,10 +180,9 @@ class DatasetSource:
 #            codes_with_silence = tf.Print(codes_with_silence, [tf.shape(codes_with_silence)], "codes with silence")
 
             target_length = target.codes_length + 2 * r
-#            target_length = tf.constant(3000, name='target_length', dtype=tf.int64)
             padded_target_length = (target_length // r + 1) * r
-            print("target_length", target_length)
-            print("padded_target_length", padded_target_length)
+#            print("target_length", target_length)
+#            print("padded_target_length", padded_target_length)
 
             # spec and mel length must be multiple of outputs_per_step
             def padding_function(t):
@@ -200,6 +202,8 @@ class DatasetSource:
             # done flag
             done = tf.concat([tf.zeros(padded_target_length // r - 1, dtype=tf.float32),
                               tf.ones(1, dtype=tf.float32)], axis=0)
+#            done = tf.Print(done, [tf.shape(done)], "\n* done shape\n")
+
             # loss mask
             code_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
             binary_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)

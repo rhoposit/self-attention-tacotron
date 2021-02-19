@@ -1459,7 +1459,7 @@ class DualSourceTransformerDecoder(tf.layers.Layer):
                  decoder_version="v1",  # v1 | v2
                  decoder_out_units=256,
                  num_mels=171,
-                 outputs_per_step=2,
+                 outputs_per_step=1,
                  max_iters=200,
                  n_feed_frame=1,
                  zoneout_factor_cell=0.0,
@@ -1556,13 +1556,10 @@ class DualSourceTransformerDecoder(tf.layers.Layer):
                                          self.dtype,
                                          source1.dtype)
 
-        decoder_outputs, stop_token, final_decoder_state = rnn_transformer(target, is_training=is_training,
-                                                                           is_validation=is_validation,
-                                                                           teacher_forcing=teacher_forcing,
-                                                                           memory_sequence_length=target_sequence_length)
+        decoder_outputs, stop_token, predicted_samples, final_decoder_state = rnn_transformer(target, is_training=is_training, is_validation=is_validation,teacher_forcing=teacher_forcing, memory_sequence_length=target_sequence_length)
 
         code_output = tf.reshape(decoder_outputs, [batch_size, -1, self.num_mels])
-        return code_output, stop_token, final_decoder_state
+        return code_output, stop_token, predicted_samples, final_decoder_state
 
 
 class DualSourceMgcLf0TransformerDecoder(tf.layers.Layer):

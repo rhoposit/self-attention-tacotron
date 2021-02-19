@@ -144,15 +144,20 @@ class CODES:
                 txt = txt.split("\t")[1]
                 codelist = txt.split(" ")
                 codeints = [int(c) for c in codelist if c != ""]
-
+                print(len(codeints))
                 start = self.version-1
                 if start >= 0:
+#                    print("splitting")
                     codeints = codeints[start::2]
+
+                print("v", self.version, "s", start, "len", len(codeints))
                 a = np.array(codeints)
                 codes = np.zeros((a.size, self.num_codes))
                 codes[np.arange(a.size),a] = 1
                 codes = np.array(codes, np.float32)
                 codes_length = a.size
+#                print(codes.shape)
+#                sys.exit()
                 file_path = os.path.join(self.out_dir, f"{record.key}.target.tfrecord")
                 write_preprocessed_target_data(record.id, record.key, codes, codes_length, "EN", file_path)
                 return record.key

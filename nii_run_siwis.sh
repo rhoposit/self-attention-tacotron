@@ -2,7 +2,7 @@
 
 python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /home/smg/v-j-williams/workspace/external_modified/data/siwis_source_selected siwis 0 161
 
-#python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /home/smg/v-j-williams/workspace/external_modified/data/siwis_target_selected0 siwis 0 161
+python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /home/smg/v-j-williams/workspace/external_modified/data/siwis_target_selected0 siwis 0 161
 
 
 

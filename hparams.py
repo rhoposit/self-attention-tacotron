@@ -162,12 +162,12 @@ hparams = tf.contrib.training.HParams(
     learning_rate_step_factor=1,
     use_l2_regularization=False,
     l2_regularization_weight=1e-7,
-    save_summary_steps=100,
+    save_summary_steps=50,
     save_checkpoints_steps=100,
     keep_checkpoint_max=20000,
     keep_checkpoint_every_n_hours=1,  # deprecated
     log_step_count_steps=1,
-    alignment_save_steps=100,
+    alignment_save_steps=50,
     save_training_time_metrics=False,
     approx_min_target_length=100,
     suffle_buffer_size=64,
@@ -190,7 +190,7 @@ hparams = tf.contrib.training.HParams(
     vars_to_warm_start=[".*"],
 
     # Eval:
-    max_iters=200,
+    max_iters=450,
     num_evaluation_steps=64,
     keep_eval_results_max_epoch=10,
     eval_start_delay_secs=120,
@@ -218,7 +218,8 @@ hparams = tf.contrib.training.HParams(
     trim_top_db=30,
     trim_frame_length=1024,
     trim_hop_length=256,
-    num_silent_frames=1,
+    num_silent_frames=2,
+#    num_silent_frames=1,
 )
 
 
