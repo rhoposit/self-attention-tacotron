@@ -94,7 +94,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
 #            code_output_raw = tf.Print(code_output_raw, [code_output_raw[3][0]], "\n* code output raw", summarize=-1)
             code_output_softmax = tf.nn.softmax(code_output_raw, axis=None, name=None, dim=None)
 #            code_output_softmax = tf.Print(code_output_softmax, [code_output_softmax[3][0]], "\n* code output softmax", summarize=-1)
-            code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 512)
+            code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 171)
 #            code_output = tf.Print(code_output, [code_output[3][0]], "\n* code output onehot", summarize=-1)
 
             # arrange to (B, T_memory, T_query)
@@ -129,7 +129,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                                                                     tf.transpose(alignment2, perm=[0, 2, 1])),
                                                                 apply_dropout_on_inference=params.apply_dropout_on_inference)
                 code_output_softmax = tf.nn.softmax(code_output_raw, axis=None, name=None, dim=None)
-                code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 512)
+                code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 171)
 
                 if params.decoder == "DualSourceTransformerDecoder" and not is_training:
                     alignment1 = tf.transpose(decoder_state.rnn_state.rnn_state[0].alignment_history[0].stack(),
@@ -152,7 +152,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
 #                out3 = tf.Print(labels.code_loss_mask, [tf.shape(labels.code_loss_mask)], "\nlabels.code_mask")
 #
 #                code_loss = codes_loss(code_output, out2, out3,params.code_loss_type)
-                code_loss = 0.1*codes_loss(code_output_raw, labels.codes, labels.code_loss_mask, params.code_loss_type)
+                code_loss = 0.01*codes_loss(code_output_raw, labels.codes, labels.code_loss_mask, params.code_loss_type)
                 
                 # fixing labels.done, labels.binary_loss_mask
 #                stop_token = tf.Print(stop_token, [tf.shape(stop_token)], "stop_token")
@@ -219,8 +219,8 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                     apply_dropout_on_inference=params.apply_dropout_on_inference)
                 
                 code_output_softmax_with_teacher = tf.nn.softmax(code_output_raw_with_teacher, axis=None, name=None, dim=None)
-                code_output_with_teacher = tf.one_hot(tf.argmax(code_output_softmax_with_teacher, axis=2), depth = 512)
-                code_loss_with_teacher = 0.1*codes_loss(code_output_raw_with_teacher, labels.codes,
+                code_output_with_teacher = tf.one_hot(tf.argmax(code_output_softmax_with_teacher, axis=2), depth = 171)
+                code_loss_with_teacher = 0.01*codes_loss(code_output_raw_with_teacher, labels.codes,
                                                   labels.code_loss_mask, params.code_loss_type)
                 done_loss_with_teacher = binary_loss(stop_token_with_teacher, labels.done, labels.binary_loss_mask)
                 loss_with_teacher = code_loss_with_teacher + done_loss_with_teacher + regularization_loss
@@ -249,6 +249,8 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                 num_self_alignments = len(self_attention_alignment)
                 num_decoder_self_alignments = len(decoder_self_attention_alignment)
                 # transform the codes softmax back into onehot
+                code_output = tf.Print(code_output, [tf.shape(code_output)], "\n[***] code output is prediction", summarize=-1)
+
                 predictions = {
                     "id": features.id,
                     "key": features.key,
@@ -266,6 +268,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                     "text": features.text,
                     "accent_type": features.accent_type if params.use_accent_type else None,
                 }
+                
                 predictions = dict(filter(lambda xy: xy[1] is not None, predictions.items()))
                 return tf.estimator.EstimatorSpec(mode, predictions=predictions)
 
@@ -346,7 +349,7 @@ def decoder_factory(params):
                                                attention_rnn_out_units=params.attention_out_units,
                                                decoder_version=params.decoder_version,
                                                decoder_out_units=params.decoder_out_units,
-                                               num_mels=512,
+                                               num_mels=171,
                                                outputs_per_step=params.outputs_per_step,
                                                max_iters=params.max_iters,
                                                n_feed_frame=params.n_feed_frame,

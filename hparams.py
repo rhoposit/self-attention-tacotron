@@ -6,11 +6,12 @@
 """  """
 
 import tensorflow as tf
+import os
 
 hparams = tf.contrib.training.HParams(
 
     # Audio
-    num_mels=1,
+    num_mels=171,
     num_mgcs=60,
     num_freq=2049,
     sample_rate=48000,
@@ -35,9 +36,9 @@ hparams = tf.contrib.training.HParams(
     lf0_loss_factor=0.5,
 
     # Dataset
-    dataset="vctk.dataset.DatasetSource",  # vctk.dataset.DatasetSource
+    dataset="codes.dataset.DatasetSource",  # vctk.dataset.DatasetSource
     num_symbols=256,
-    source="phoneme",  # phone, phoneme
+    source="phone",  # phone, phoneme
     source_file_extension="source.tfrecord",
     target_file_extension="target.tfrecord",
 
@@ -189,7 +190,7 @@ hparams = tf.contrib.training.HParams(
     vars_to_warm_start=[".*"],
 
     # Eval:
-    max_iters=3000,
+    max_iters=200,
     num_evaluation_steps=64,
     keep_eval_results_max_epoch=10,
     eval_start_delay_secs=120,
@@ -205,11 +206,19 @@ hparams = tf.contrib.training.HParams(
     zoneout_factor_cell=0.1,
     zoneout_factor_output=0.1,
 
+    # source
+    phoneme='flite',  # none, flite
+    # Flite
+    flite_binary_path='/home/smg/cooper/installs/flite/bin/flite',
+    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/us_phoneset.json',
+#    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/cmu_phoneset.json',
+
+    
     # Pre-process
     trim_top_db=30,
     trim_frame_length=1024,
     trim_hop_length=256,
-    num_silent_frames=4,
+    num_silent_frames=1,
 )
 
 

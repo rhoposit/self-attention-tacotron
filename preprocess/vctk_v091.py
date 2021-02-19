@@ -14,7 +14,7 @@ from utils.audio import Audio
 from utils.tfrecord import bytes_feature, int64_feature, write_tfrecord
 from preprocess.cleaners import basic_cleaners
 from preprocess.text import text_to_sequence
-
+from extensions.flite import Flite
 
 def write_preprocessed_target_data(_id: int, key: str, mel: np.ndarray, filename: str):
     raw_mel = mel.tostring()
@@ -28,15 +28,19 @@ def write_preprocessed_target_data(_id: int, key: str, mel: np.ndarray, filename
     write_tfrecord(example, filename)
 
 
-def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text, speaker_id, age, gender,
-                                   filename: str):
+def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text, phones: np.ndarray, phone_txt, speaker_id, age, gender, filename: str):
     raw_source = source.tostring()
+    phones = phones if phones is not None else np.empty([0], dtype=np.int64)
+    phone_txt = phone_txt if phone_txt is not None else ''
     example = tf.train.Example(features=tf.train.Features(feature={
         'id': int64_feature([_id]),
         'key': bytes_feature([key.encode('utf-8')]),
         'source': bytes_feature([raw_source]),
         'source_length': int64_feature([len(source)]),
         'text': bytes_feature([text.encode('utf-8')]),
+        'phone': bytes_feature([phones.tostring()]),
+        'phone_length': int64_feature([len(phones)]),
+        'phone_txt': bytes_feature([phone_txt.encode('utf-8')]),
         'speaker_id': int64_feature([speaker_id]),
         'age': int64_feature([age]),
         'gender': int64_feature([gender]),
@@ -86,6 +90,7 @@ class VCTK:
         self.in_dir = in_dir
         self.out_dir = out_dir
         self.audio = Audio(hparams)
+        self.g2p = Flite(hparams.flite_binary_path, hparams.phoneset_path) if hparams.phoneme == 'flite' else None
         self.speaker_info_filename = speaker_info_filename
 
     def list_files(self):
@@ -98,10 +103,9 @@ class VCTK:
                     wav_file.endswith('_mic2.flac')]
 
         def text_files(speaker_info: SpeakerInfo):
-            txt_dir = os.path.join(self.in_dir, f"txt/s{speaker_info.id}") if speaker_info.id == 5 else os.path.join(
-                self.in_dir, f"txt/p{speaker_info.id}")
-            return [os.path.join(txt_dir, txt_file) for txt_file in sorted(os.listdir(txt_dir)) if
-                    txt_file.endswith('.txt') and not os.path.basename(txt_file) in missing]
+            txt_dir = self.in_dir
+            spk = "p"+str(speaker_info.id)
+            return [os.path.join(txt_dir, txt_file) for txt_file in sorted(os.listdir(txt_dir)) if txt_file.endswith('.txt') and txt_file.startswith(spk) and not os.path.basename(txt_file) in missing]
 
         def text_and_wav_records(file_pairs, speaker_info):
             def create_record(txt_f, wav_f, speaker_info):
@@ -123,7 +127,7 @@ class VCTK:
         return TargetRDD(rdd.map(self._process_wav).persist(StorageLevel.MEMORY_AND_DISK))
 
     def _load_speaker_info(self):
-        with open(os.path.join(self.in_dir, self.speaker_info_filename), mode='r', encoding='utf8') as f:
+        with open(self.speaker_info_filename, mode='r', encoding='utf8') as f:
             for l in f.readlines()[1:]:
                 si = l.split()
                 gender = 0 if si[2] == 'F' else 1
@@ -146,11 +150,13 @@ class VCTK:
 
     def _process_txt(self, record: TxtWavRecord):
         with open(os.path.join(self.in_dir, record.txt_path), mode='r', encoding='utf8') as f:
-            txt = f.readline().rstrip("\n")
+            txt = f.readline().rstrip("\n").split("\t")[0]
             sequence, clean_text = text_to_sequence(txt, basic_cleaners)
+            phone_ids, phone_txt = self.g2p.convert_to_phoneme(clean_text) if self.g2p is not None else (None, None)
             source = np.array(sequence, dtype=np.int64)
+            phone_ids = np.array(phone_ids, dtype=np.int64) if phone_ids is not None else None
             file_path = os.path.join(self.out_dir, f"{record.key}.source.tfrecord")
-            write_preprocessed_source_data(record.id, record.key, source, clean_text, record.speaker_info.id,
+            write_preprocessed_source_data(record.id, record.key, source, clean_text, phone_ids, phone_txt, record.speaker_info.id,
                                            record.speaker_info.age,
                                            record.speaker_info.gender, file_path)
             return record.key

@@ -48,6 +48,17 @@ def write_tfrecord(example: tf.train.Example, filename: str):
         writer.write(example.SerializeToString())
 
 
+def write_phones(phonestring: str, filename: str):
+    phones = phonestring.split(" ")
+    phones = [p for p in phones if (p != "" and p != "\n" and p != " ")][1:-1]
+    cleanstring = " ".join(phones)
+    print("D:", phonestring)
+    print("C:", cleanstring)    
+    output = open(filename, "w")
+    output.write(cleanstring)
+    output.close()
+
+        
 def parse_preprocessed_target_data(proto):
     features = {
         'id': tf.FixedLenFeature((), tf.int64),

@@ -55,7 +55,7 @@ def predict(hparams,
         filename = f"{key}.mfbsp"
         filepath = os.path.join(output_dir, filename)
         codes = v.codes
-        assert codes.shape[1] == 512
+#        assert codes.shape[1] == 512
         codes.tofile(filepath, format='<f4')
         text = v.text.decode("utf-8")
         print(key, codes.shape[0], v.ground_truth_codes.shape[0], text)

@@ -1,8 +1,9 @@
 
 
-python preprocess_siwisvq.py --source-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis /home/smg/v-j-williams/workspace/external_modified/data/siwis_source
+python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /home/smg/v-j-williams/workspace/external_modified/data/siwis_source_selected siwis 0 161
 
-#python preprocess_siwisvq.py --target-only --hparam-json-file=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis /home/smg/v-j-williams/workspace/external_modified/data/siwis_half_target
+#python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /home/smg/v-j-williams/workspace/external_modified/data/siwis_target_selected0 siwis 0 161
+
 
 
 
@@ -14,16 +15,16 @@ export TF_FORCE_GPU_ALLOW_GROWTH=true
 
 # TRAINING command to run
 DATASET=vqcodes
-SOURCE_DATA=/home/smg/v-j-williams/workspace/external_modified/data/siwis_source
-TARGET_DATA=/home/smg/v-j-williams/workspace/external_modified/data/siwis_half_target
-CHECKPOINTS=/home/smg/v-j-williams/workspace/external_modified/checkpoints/siwis
+SOURCE_DATA=/home/smg/v-j-williams/workspace/external_modified/data/siwis_source_selected
+TARGET_DATA=/home/smg/v-j-williams/workspace/external_modified/data/siwis_target_selected0
+CHECKPOINTS=/home/smg/v-j-williams/workspace/external_modified/checkpoints/siwis_selected0
 VCTK_SELECTED_LIST=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes_siwis
 HPARAM_FILE=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes_siwis/self-attention-tacotron.json
 
 export CUDA_VISIBLE_DEVICES=0
 #python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
 
-OUTPUT_DIR=/home/smg/v-j-williams/workspace/external_modified/prediction/siwis
+OUTPUT_DIR=/home/smg/v-j-williams/workspace/external_modified/prediction/siwis_selected0
 #python predict_code.py  --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE --output-dir=$OUTPUT_DIR
 
-#python postprocess_vqcodes.py siwis
+#python postprocess_vqcodes.py siwis_selected0
