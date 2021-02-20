@@ -179,10 +179,12 @@ class DatasetSource:
             codes_with_silence = tf.pad(codes, paddings=paddings, mode="CONSTANT")
 #            codes_with_silence = tf.Print(codes_with_silence, [tf.shape(codes_with_silence)], "codes with silence")
 
-            target_length = target.codes_length + 2 * r
-            padded_target_length = (target_length // r + 1) * r
+#            target_length = target.codes_length + 2 * r
+#            padded_target_length = (target_length // r + 2) * r
+
+            padded_target_length = target.codes_length
 #            print("target_length", target_length)
-            print("** padded_target_length", padded_target_length)
+#            print("** padded_target_length", padded_target_length)
 
             # spec and mel length must be multiple of outputs_per_step
 #            def padding_function(t):
@@ -195,33 +197,34 @@ class DatasetSource:
 #            zero64 = tf.cast(0, dtype=tf.int64)
 #            no_padding_condition = tf.equal(zero64, target_length % r)
 
-            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes before padding\n", summarize=-1)
-            index = tf.argmax(codes, axis=0)
-            index = tf.Print(index, [tf.shape(index), index], "\n* indexes\n", summarize=-1)
-            index = tf.concat([a, index, a], 0)
-            index = tf.Print(index, [tf.shape(index), index], "\n* indexes after padding\n", summarize=-1)
-            codes = tf.one_hot(index, 171)
-            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes after padding\n", summarize=-1)
+#            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes before padding\n", summarize=-1)
+#            index = tf.argmax(codes, axis=1)
+#            index = tf.Print(index, [tf.shape(index), index], "\n* indexes\n", summarize=-1)
+#            index = tf.concat([a, index, a], 0)
+#            index = tf.Print(index, [tf.shape(index), index], "\n* indexes after padding\n", summarize=-1)
+#            codes = tf.one_hot(index, depth=171)
+#            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes after padding\n", summarize=-1)
 
 #            codes = tf.cond(no_padding_condition, lambda: codes_with_silence, padding_function(codes_with_silence))
 
 #            padded_target_length = tf.cond(no_padding_condition, lambda: target_length, lambda: padded_target_length)
             
             # done flag
-            done = tf.concat([tf.zeros(padded_target_length // r - 2, dtype=tf.float32),
+            done = tf.concat([tf.zeros(padded_target_length // r - 1, dtype=tf.float32),
                               tf.ones(1, dtype=tf.float32)], axis=0)
-            done = tf.Print(done, [tf.shape(done), done], "\n* done shape\n", summarize=-1)
+            done = tf.Print(done, [tf.shape(done)], "\n* done shape\n", summarize=-1)
 
             # loss mask
             code_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
             binary_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-            codes = tf.Print(codes, [tf.shape(codes[0]), codes[0]], "\n* labels.codes first\n", summarize=-1)
-            codes = tf.Print(codes, [tf.shape(codes[0]), codes[1]], "\n* labels.codes second\n", summarize=-1)
-            codes = tf.Print(codes, [tf.shape(codes[-1]), codes[-1]], "\n* labels.codes second-last\n", summarize=-1)
-            codes = tf.Print(codes, [tf.shape(codes[-1]), codes[-2]], "\n* labels.codes last\n", summarize=-1)
-#            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes shape\n")
-#            codes_length = tf.Print(target.codes_length, [target.codes_length], "\n* codes length shape\n")
-#            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "\n* code loss mask\n")
+#            codes = tf.Print(codes, [tf.shape(codes[0]), codes[0]], "\n* labels.codes first\n", summarize=-1)
+#            codes = tf.Print(codes, [tf.shape(codes[0]), codes[1]], "\n* labels.codes second\n", summarize=-1)
+#            codes = tf.Print(codes, [tf.shape(codes[-1]), codes[-2]], "\n* labels.codes second-last\n", summarize=-1)
+#            codes = tf.Print(codes, [tf.shape(codes[-1]), codes[-1]], "\n* labels.codes last\n", summarize=-1)
+            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes shape\n")
+            codes_length = tf.Print(target.codes_length, [target.codes_length], "\n* codes length shape\n")
+            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "\n* code loss mask\n")
+            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\n* binary loss mask\n")
 #            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\n* binary loss mask\n")
 
             return CodeData(target.id, target.key, codes, target.codes_length, padded_target_length, done, code_loss_mask, binary_loss_mask)
