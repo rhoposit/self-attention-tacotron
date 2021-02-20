@@ -36,5 +36,5 @@ def text_to_sequence(text, cleaner):
 def _symbols_to_sequence(symbols):
 #    print(symbols)
     # DO NOT Add leading and trailing silence symbols
-    return [0] + [_symbol_to_id[s] for s in symbols] + [0]
-#    return [_symbol_to_id[s] for s in symbols]
+#    return [0] + [_symbol_to_id[s] for s in symbols] + [0]
+    return [_symbol_to_id[s] for s in symbols]
