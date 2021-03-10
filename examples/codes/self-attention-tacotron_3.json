@@ -1,6 +1,6 @@
 {
     "initial_learning_rate": 0.002,
-    "outputs_per_step": 1,
+    "outputs_per_step": 3,
     "max_iters": 450,
     "attention": "forward",
     "cumulative_weights": false,
@@ -10,7 +10,7 @@
     "decoder_version": "v2",
     "dataset": "codes.dataset.DatasetSource",
     "target_file_extension": "target.tfrecord",
-    "save_checkpoints_steps": 50,
+    "save_checkpoints_steps": 100,
     "tacotron_model": "DualSourceSelfAttentionTacotronModel",
     "encoder": "SelfAttentionCBHGEncoder",
     "decoder": "DualSourceTransformerDecoder",

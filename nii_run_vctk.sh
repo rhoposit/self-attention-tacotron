@@ -1,8 +1,6 @@
+#python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk_170_selected /home/smg/v-j-williams/workspace/external_modified/data/vctk_target_selected0 vctk 0 171
 
-
-#python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk_170_selected /home/smg/v-j-williams/workspace/external_modified/data/vctk_target_selected0 vctk 0 170
-
-python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk_170_selected /home/smg/v-j-williams/workspace/external_modified/data/vctk_source_selected vctk 0 170
+#python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/smg/cooper/installs/flite/bin/flite' /home/smg/v-j-williams/workspace/tsubame_work/special/L1_dat_files/sys5/vctk_753011/all_vctk_170_selected /home/smg/v-j-williams/workspace/external_modified/data/vctk_source_selected vctk 0 171
 
 
 #export PATH="/home/smg/v-j-williams/miniconda2/bin:$PATH"
@@ -18,7 +16,7 @@ VCTK_SELECTED_LIST=/home/smg/v-j-williams/workspace/external_modified/self_atten
 HPARAM_FILE=/home/smg/v-j-williams/workspace/external_modified/self_attention_tacotron/examples/codes/self-attention-tacotron.json
 
 export CUDA_VISIBLE_DEVICES=0
-#python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
+python train.py --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE
 
 OUTPUT_DIR=/home/smg/v-j-williams/workspace/external_modified/prediction/vctk_selected0
 #python predict_code.py  --source-data-root=$SOURCE_DATA --target-data-root=$TARGET_DATA --selected-list-dir=$VCTK_SELECTED_LIST --checkpoint-dir=$CHECKPOINTS --hparam-json-file=$HPARAM_FILE --output-dir=$OUTPUT_DIR

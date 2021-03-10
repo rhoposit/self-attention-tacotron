@@ -19,7 +19,7 @@ class PreprocessedTargetData(namedtuple("PreprocessedTargetData",
 
 
 class PreprocessedCodeData(namedtuple("PreprocessedCodeData",
-    ["id", "key", "codes",  "codes_length", "codes_width"])):
+    ["id", "key", "lang", "codes",  "codes_length", "codes_width"])):
     pass
 
 
@@ -52,8 +52,8 @@ def write_phones(phonestring: str, filename: str):
     phones = phonestring.split(" ")
     phones = [p for p in phones if (p != "" and p != "\n" and p != " ")][1:-1]
     cleanstring = " ".join(phones)
-    print("D:", phonestring)
-    print("C:", cleanstring)    
+#    print("D:", phonestring)
+#    print("C:", cleanstring)    
     output = open(filename, "w")
     output.write(cleanstring)
     output.close()
@@ -63,6 +63,7 @@ def parse_preprocessed_target_data(proto):
     features = {
         'id': tf.FixedLenFeature((), tf.int64),
         'key': tf.FixedLenFeature((), tf.string),
+        'lang': tf.FixedLenFeature((), tf.string),
         'codes': tf.FixedLenFeature((), tf.string),
         'codes_length': tf.FixedLenFeature((), tf.int64),
         'codes_width': tf.FixedLenFeature((), tf.int64),
@@ -78,6 +79,7 @@ def decode_preprocessed_target_data(parsed):
     return PreprocessedCodeData(
         id=parsed['id'],
         key=parsed['key'],
+        lang=parsed['lang'],
         codes=tf.reshape(codes, shape=tf.stack([codes_length, codes_width], axis=0)),
         codes_length=codes_length,
         codes_width=codes_width,
@@ -88,6 +90,7 @@ def parse_preprocessed_code_data(proto):
     features = {
         'id': tf.FixedLenFeature((), tf.int64),
         'key': tf.FixedLenFeature((), tf.string),
+        'lang': tf.FixedLenFeature((), tf.string),
         'codes': tf.FixedLenFeature((), tf.string),
         'codes_length': tf.FixedLenFeature((), tf.int64),
         'codes_width': tf.FixedLenFeature((), tf.int64),
@@ -103,6 +106,7 @@ def decode_preprocessed_code_data(parsed):
     return PreprocessedCodeData(
         id=parsed['id'],
         key=parsed['key'],
+        lang=parsed['lang'],
         codes=tf.reshape(codes, shape=tf.stack([codes_length, codes_width], axis=0)),
         codes_length=codes_length,
         codes_width=codes_width,

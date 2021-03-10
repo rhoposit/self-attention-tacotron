@@ -122,6 +122,9 @@ def main():
     validation_source_files = [os.path.join(source_data_root, f"{key}.{hparams.source_file_extension}") for key in validation_list]
     validation_target_files = [os.path.join(target_data_root, f"{key}.{hparams.target_file_extension}") for key in validation_list]
 
+    print("training source", len(training_source_files))
+    print("training target", len(training_target_files))
+    
     log = logging.getLogger("tensorflow")
     log.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
