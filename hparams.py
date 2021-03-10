@@ -218,6 +218,7 @@ hparams = tf.contrib.training.HParams(
     trim_top_db=30,
     trim_frame_length=1024,
     trim_hop_length=256,
+#    num_silent_frames=2,
     num_silent_frames=1,
 )
 
