@@ -7,11 +7,13 @@
 #rsync -r special/L1_dat_files/sys5/vctk_753011/all_vctk_170_selected /disk/scratch/s1738075/
 
 #python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' /disk/scratch/s1738075/special/L1_dat_files/sys5/vctk_753011/all_vctk_170_selected /disk/scratch/s1738075/data/vctk_target_selected0 vctk 0 171
-#rsync -r /disk/scratch/s1738075/data/vctk_target_selected0 data
+#rsync -r /disk/scratch/s1738075/data /home/s1738075/data
 
 #python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' /disk/scratch/s1738075/special/L1_dat_files/sys5/vctk_753011/all_vctk_170_selected /disk/scratch/data/vctk_source_selected vctk 0 171
-#rsync -r /disk/scratch/s1738075/data/vctk_source_selected data
+#rsync -r /disk/scratch/s1738075/data /home/s1738075/data
 
+
+exit
 
 export PYTHONPATH=/home/s1738075/taco_modified:/home/s1738075/taco_modified/tacotron2:/home/s1738075/taco_modified/self_attention_tacotron:/home/s1738075/taco_modified/multi_speaker_tacotron:/home/smg/v-j-williams/miniconda2/envs/taco/lib/python3.6/site-packages:/home/smg/v-j-williams/miniconda2/envs/taco/lib/python3.6/site-packages/mkl:$PYTHONPATH
 export TF_FORCE_GPU_ALLOW_GROWTH=true

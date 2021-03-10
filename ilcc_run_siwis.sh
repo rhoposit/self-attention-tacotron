@@ -8,10 +8,10 @@
 #rsync -r special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /disk/scratch/s1738075/
 
 python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' /disk/scratch/s1738075/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /disk/scratch/s1738075/data/siwis_source_selected siwis 0 161
-#rsync -r /disk/scratch/s1738075/data/siwis_source_selected data
+#rsync -r /disk/scratch/s1738075/data /home/s1738075/data
 
 python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' /disk/scratch/s1738075/special/L1_dat_files/sys5_lang/siwis_552024/all_siwis_161_selected /disk/scratch/s1738075/data/siwis_target_selected0 siwis 0 161
-#rsync -r /disk/scratch/s1738075/data/siwis_target_selected0 data
+#rsync -r /disk/scratch/s1738075/data /home/s1738075/data
 
 
 export PYTHONPATH=/home/s1738075/taco_modified:/home/s1738075/taco_modified/tacotron2:/home/s1738075/taco_modified/self_attention_tacotron:/home/s1738075/taco_modified/multi_speaker_tacotron:/home/smg/v-j-williams/miniconda2/envs/taco/lib/python3.6/site-packages:/home/smg/v-j-williams/miniconda2/envs/taco/lib/python3.6/site-packages/mkl:$PYTHONPATH
