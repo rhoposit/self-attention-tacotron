@@ -102,8 +102,8 @@ def decode_target(parsed):
 
 
 #target_source = sys.argv[1]
-#datadir = "/home/smg/v-j-williams/workspace/external_modified/data/vctk_target_selected0"
-datadir = "/home/smg/v-j-williams/workspace/external_modified/data/vctk_source_selected"
+#datadir = "/disk/scratch/s1738075/data/vctk_target_small"
+datadir = "/disk/scratch/s1738075/data/vctk_source_small"
 tfiles = glob.glob(datadir+"/*.tfrecord")
 #print(tfiles)
 
