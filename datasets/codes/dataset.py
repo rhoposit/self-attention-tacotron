@@ -146,12 +146,10 @@ class DatasetSource:
         def convert(inputs: PreprocessedSourceData):
             source = inputs.phone if hparams.source == 'phone' else inputs.source
             source_length = inputs.phone_length if hparams.source == 'phone' else inputs.source_length
-            print(inputs.phone)
-            print(inputs.phone_length)
-            print(inputs.phone_txt)
-            print(source)
-            print(source_length)
             text = inputs.phone_txt if hparams.source == 'phone' else inputs.text
+            source = tf.Print(source, [source], "source", summarize=-1)
+            source_length = tf.Print(source_length, [source_length], "source len", summarize=-1)
+            text = tf.Print(text, [text], "text", summarize=-1)
             return SourceData(inputs.id, inputs.key, source, source_length, inputs.speaker_id, inputs.age, inputs.gender, text)
 
         return DatasetSource._decode_source(source).map(lambda inputs: convert(inputs))
