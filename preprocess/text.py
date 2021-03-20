@@ -30,12 +30,13 @@ _id_to_symbol = {i + 1: s for i, s in enumerate(symbols)}
 
 def text_to_sequence(text, cleaner):
     clean_text = cleaner(text)
-    print("clean_text", clean_text)
-    return _symbols_to_sequence(clean_text), clean_text
+    sequence = _symbols_to_sequence(clean_text)
+    print("clean_text", len(clean_text), clean_text)
+    print("sequence", len(sequence), sequence)
+    return sequence, clean_text
 
 
-def _symbols_to_sequence(symbols):
-#    print(symbols)
+def _symbols_to_sequence(syms):
     # DO NOT Add leading and trailing silence symbols
 #    return [0] + [_symbol_to_id[s] for s in symbols] + [0]
-    return [_symbol_to_id[s] for s in symbols]
+    return [_symbol_to_id[s] for s in syms]

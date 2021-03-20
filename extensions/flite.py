@@ -26,12 +26,11 @@ class Flite:
         phone_txt = result.stdout.decode('utf-8', 'strict')
         phone_list = phone_txt.split(' ')
         phone_list = phone_list[:-1] if phone_list[-1] == '\n' else phone_list
-        # remove the leading and trailing silence
-#        phone_list = [p for p in phone_list if p != 'pau']
+        # remove the leading and trailing pau tokens
         phone_list = phone_list[1:-1]
         phone_ids = [self._phone_set.phone_to_id(p) for p in phone_list]
-        print(phone_list)
-        print(phone_ids)
+#        print(phone_list)
+#        print(phone_ids)
         phone_txt = " ".join(phone_list)
         return phone_ids, phone_txt
 
