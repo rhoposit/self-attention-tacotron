@@ -30,5 +30,6 @@ class Flite:
 #        phone_list = [p for p in phone_list if p != 'pau']
         phone_ids = [self._phone_set.phone_to_id(p) for p in phone_list]
         print(phone_list)
+        print(phone_ids)
         return phone_ids, phone_txt
 
