@@ -218,13 +218,10 @@ hparams = tf.contrib.training.HParams(
     trim_top_db=30,
     trim_frame_length=1024,
     trim_hop_length=256,
-<<<<<<< HEAD
 #    num_silent_frames=2,
-    num_silent_frames=1,
-=======
-    num_silent_frames=0,
 #    num_silent_frames=1,
->>>>>>> a2d95d8aeb8d114d9fca8b3883eab2b4d8fc6530
+    num_silent_frames=0,
+
 )
 
 

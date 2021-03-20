@@ -21,7 +21,7 @@ import csv
 import os, sys
 import numpy as np
 import json
-from pyspark import SparkContext
+#from pyspark import SparkContext
 from docopt import docopt
 from hparams import hparams, hparams_debug_string
 
