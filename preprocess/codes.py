@@ -170,5 +170,7 @@ class CODES:
             source = np.array(sequence, dtype=np.int64)
             phone_ids = np.array(phone_ids, dtype=np.int64) if phone_ids is not None else None
             file_path = os.path.join(self.out_dir, f"{record.key}.source.tfrecord")
+            print("seq", sequence)
+            print("phn", phone_txt)
             write_preprocessed_source_data(record.id, record.key, source, clean_text, phone_ids, phone_txt, record.speaker_info.id, record.speaker_info.age, record.speaker_info.gender, "EN", file_path)
             return record.key
