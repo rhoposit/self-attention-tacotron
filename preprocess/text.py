@@ -30,7 +30,7 @@ _id_to_symbol = {i + 1: s for i, s in enumerate(symbols)}
 
 def text_to_sequence(text, cleaner):
     clean_text = cleaner(text)
-    print(clean_text)
+    print("clean_text", clean_text)
     return _symbols_to_sequence(clean_text), clean_text
 
 
