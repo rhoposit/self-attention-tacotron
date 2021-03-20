@@ -159,8 +159,8 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                 code_loss = 0.1*codes_loss(code_output_raw, labels.codes, labels.code_loss_mask, params.code_loss_type)
                 
                 # fixing labels.done, labels.binary_loss_mask
-#                stop_token = tf.Print(stop_token, [tf.shape(stop_token)], "stop_token")
-                done_loss = binary_loss(stop_token, labels.done, labels.binary_loss_mask)
+                stop_token = tf.Print(stop_token, [tf.shape(stop_token), stop_token], "* stop_token")
+                done_loss = 10*binary_loss(stop_token, labels.done, labels.binary_loss_mask)
 
                 blacklist = ["embedding", "bias", "batch_normalization", "output_projection_wrapper/kernel",
                              "lstm_cell",
@@ -226,7 +226,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                 code_output_with_teacher = tf.one_hot(tf.argmax(code_output_softmax_with_teacher, axis=2), depth = 171)
                 code_loss_with_teacher = 0.1*codes_loss(code_output_raw_with_teacher, labels.codes,
                                                   labels.code_loss_mask, params.code_loss_type)
-                done_loss_with_teacher = binary_loss(stop_token_with_teacher, labels.done, labels.binary_loss_mask)
+                done_loss_with_teacher = 10*binary_loss(stop_token_with_teacher, labels.done, labels.binary_loss_mask)
                 loss_with_teacher = code_loss_with_teacher + done_loss_with_teacher + regularization_loss
 
                 eval_metric_ops = self.get_validation_metrics(code_loss, done_loss,
