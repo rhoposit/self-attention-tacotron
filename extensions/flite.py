@@ -32,5 +32,6 @@ class Flite:
         phone_ids = [self._phone_set.phone_to_id(p) for p in phone_list]
         print(phone_list)
         print(phone_ids)
+        phone_txt = " ".join(phone_list)
         return phone_ids, phone_txt
 
