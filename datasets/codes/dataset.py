@@ -213,7 +213,6 @@ class DatasetSource:
             # done flag
             done = tf.concat([tf.zeros(target_length // r - 1, dtype=tf.float32),
                               tf.ones(1, dtype=tf.float32)], axis=0)
-            done = tf.Print(done, [tf.shape(done)], "\n* done shape\n", summarize=-1)
 
             # loss mask
             code_loss_mask = tf.ones(shape=target_length, dtype=tf.float32)
@@ -222,11 +221,12 @@ class DatasetSource:
 #            codes = tf.Print(codes, [tf.shape(codes[0]), codes[1]], "\n* labels.codes second\n", summarize=-1)
 #            codes = tf.Print(codes, [tf.shape(codes[-1]), codes[-2]], "\n* labels.codes second-last\n", summarize=-1)
 #            codes = tf.Print(codes, [tf.shape(codes[-1]), codes[-1]], "\n* labels.codes last\n", summarize=-1)
-            target_length = tf.Print(target_length, [target_length], "\n* target.codes_length")
-            codes = tf.Print(codes, [tf.shape(codes)], "\n* target.codes shape")
-            codes_length = tf.Print(target.codes_length, [target.codes_length], "\n* codes length shape")
-            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "\n* code loss mask")
-            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\n* binary loss mask")
+            target_length = tf.Print(target_length, [target_length], "* target.codes_length\n\n")
+            codes = tf.Print(codes, [tf.shape(codes)], "* target.codes shape")
+            codes_length = tf.Print(target.codes_length, [target.codes_length], "* codes length shape")
+            code_loss_mask = tf.Print(code_loss_mask, [tf.shape(code_loss_mask)], "* code loss mask")
+            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "* binary loss mask")
+            done = tf.Print(done, [tf.shape(done)], "* done shape", summarize=-1)
 #            binary_loss_mask = tf.Print(binary_loss_mask, [tf.shape(binary_loss_mask)], "\n* binary loss mask\n")
 
             return CodeData(target.id, target.key, codes, target.codes_length, target_length, done, code_loss_mask, binary_loss_mask)
