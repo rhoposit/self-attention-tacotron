@@ -159,7 +159,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                 code_loss = 0.1*codes_loss(code_output_raw, labels.codes, labels.code_loss_mask, params.code_loss_type)
                 
                 # fixing labels.done, labels.binary_loss_mask
-                stop_token = tf.Print(stop_token, [tf.shape(stop_token), stop_token], "* stop_token")
+                stop_token = tf.Print(stop_token, [tf.shape(stop_token), stop_token], "* stop_token", summarize=-1)
                 done_loss = 10*binary_loss(stop_token, labels.done, labels.binary_loss_mask)
 
                 blacklist = ["embedding", "bias", "batch_normalization", "output_projection_wrapper/kernel",
