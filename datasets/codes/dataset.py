@@ -146,6 +146,11 @@ class DatasetSource:
         def convert(inputs: PreprocessedSourceData):
             source = inputs.phone if hparams.source == 'phone' else inputs.source
             source_length = inputs.phone_length if hparams.source == 'phone' else inputs.source_length
+            print(inputs.phone)
+            print(inputs.phone_length)
+            print(inputs.phone_txt)
+            print(source)
+            print(source_length)
             text = inputs.phone_txt if hparams.source == 'phone' else inputs.text
             return SourceData(inputs.id, inputs.key, source, source_length, inputs.speaker_id, inputs.age, inputs.gender, text)
 
