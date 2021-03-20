@@ -28,6 +28,7 @@ class Flite:
         phone_list = phone_list[:-1] if phone_list[-1] == '\n' else phone_list
         # remove the leading and trailing silence
 #        phone_list = [p for p in phone_list if p != 'pau']
+        phone_list = phone_list[1:-1]
         phone_ids = [self._phone_set.phone_to_id(p) for p in phone_list]
         print(phone_list)
         print(phone_ids)
