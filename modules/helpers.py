@@ -13,6 +13,7 @@ from tensorflow.contrib.seq2seq import Helper
 class TransformerTrainingHelper(Helper):
 
     def __init__(self, targets, output_dim, r, n_feed_frame=1):
+        print(r, n_feed_frame)
         assert n_feed_frame <= r
         t_shape = tf.shape(targets)
         self._batch_size = t_shape[0]
