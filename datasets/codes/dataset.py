@@ -185,7 +185,7 @@ class DatasetSource:
 #            target_length = target.codes_length + 2 * r
 #            padded_target_length = (target_length // r + 2) * r
 
-            target_length = target.codes_length
+            target_length = target.codes_length * r
 
             # spec and mel length must be multiple of outputs_per_step
 #            def padding_function(t):
