@@ -92,7 +92,7 @@ hparams = tf.contrib.training.HParams(
     ## Decoder
     decoder="DualSourceTransformerDecoder", # ExtendedDecoder | TransformerDecoder | DualSourceDecoder | DualSourceTransformerDecoder | MgcLf0DualSourceDecoder
     attention="additive",  # additive, location_sensitive, forward
-    forced_alignment_attention = "teacher_forcing_forward",  # teacher_forcing_forward, teacher_forcing_additive
+    forced_alignment_attention = "teacher_forcing_additive",  # teacher_forcing_forward, teacher_forcing_additive
 
     ### Dual Source Decoder
     attention2="additive",
@@ -153,7 +153,7 @@ hparams = tf.contrib.training.HParams(
     code_loss_type="l1",  # l1 or mse
 
     # Training:
-    batch_size=16,
+    batch_size=32,
     adam_beta1=0.9,
     adam_beta2=0.999,
     adam_eps=1e-8,
@@ -163,7 +163,7 @@ hparams = tf.contrib.training.HParams(
     use_l2_regularization=False,
     l2_regularization_weight=1e-7,
     save_summary_steps=50,
-    save_checkpoints_steps=100,
+    save_checkpoints_steps=50,
     keep_checkpoint_max=20000,
     keep_checkpoint_every_n_hours=1,  # deprecated
     log_step_count_steps=1,
@@ -191,7 +191,7 @@ hparams = tf.contrib.training.HParams(
 
     # Eval:
     max_iters=450,
-    num_evaluation_steps=64,
+    num_evaluation_steps=5,
     keep_eval_results_max_epoch=10,
     eval_start_delay_secs=120,
     eval_throttle_secs=600,
@@ -210,8 +210,8 @@ hparams = tf.contrib.training.HParams(
     phoneme='flite',  # none, flite
     # Flite
     flite_binary_path='/home/smg/cooper/installs/flite/bin/flite',
-    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/us_phoneset.json',
-#    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/cmu_phoneset.json',
+#    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/us_phoneset.json',
+    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/cmu_phoneset.json',
 
     
     # Pre-process
