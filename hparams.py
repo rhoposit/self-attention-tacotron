@@ -211,7 +211,7 @@ hparams = tf.contrib.training.HParams(
     # Flite
     flite_binary_path='/home/s1738075/taco_modified/self_attention_tacotron/flite',
 #    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/us_phoneset.json',
-    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/cmu_phoneset.json',
+    phoneset_path='/home/s1738075/taco_modified/self_attention_tacotron/extensions/phoneset/uscmu_phoneset.json',
 
     
     # Pre-process
