@@ -25,16 +25,17 @@ mkdir $SCRATCH
 mkdir $SCRATCH_DATA
 mkdir $SCRATCH_CHECK
 mkdir ${CHECKPOINTS}
-
 mkdir $SOURCE_DATA
 mkdir $TARGET_DATA
-rsync -ruva $RAW_DATA
+rsync -ruva $RAW_DATA $SCRATCH_DATA
 
 python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $TARGET_DATA vctk 0 171
-
+rsync -ruva $TARGET_DATA /home/s1738075/data/
 
 python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $SOURCE_DATA vctk 0 171
-rsync -ruva /disk/scratch/s1738075/data/ /home/s1738075/data/
+rsync -ruva $SOURCE_DATA /home/s1738075/data/
+
+rsync -ruva $SCRATCH_DATA_RAW /home/s1738075/data/
 exit
 
 
