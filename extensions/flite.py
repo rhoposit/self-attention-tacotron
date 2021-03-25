@@ -28,7 +28,12 @@ class Flite:
         phone_list = phone_list[:-1] if phone_list[-1] == '\n' else phone_list
         # remove the leading and trailing pau tokens
         phone_list = phone_list[1:-1]
-        phone_ids = [self._phone_set.phone_to_id(p) for p in phone_list]
+        try:
+            phone_ids = [self._phone_set.phone_to_id(p) for p in phone_list]
+        except Exception as e:
+            print(e)
+            phone_ids = []
+            phone_txt = []
 #        print(phone_list)
 #        print(phone_ids)
         phone_txt = " ".join(phone_list)
