@@ -20,14 +20,13 @@ HPARAM_FILE=/home/s1738075/taco_modified/self_attention_tacotron/examples/codes/
 OUTPUT_DIR=/home/s1738075/taco_modified/prediction/${NAME}
 
 
-rsync -ruva $ORIG_DATA $SCRATCH_DATA
 mkdir $SCRATCH
 mkdir $SCRATCH_DATA
 mkdir $SCRATCH_CHECK
 mkdir ${CHECKPOINTS}
 mkdir $SOURCE_DATA
 mkdir $TARGET_DATA
-rsync -ruva $RAW_DATA $SCRATCH_DATA
+rsync -ruva $ORIG_DATA $SCRATCH_DATA
 
 python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $TARGET_DATA vctk 0 171
 rsync -ruva $TARGET_DATA /home/s1738075/data/
