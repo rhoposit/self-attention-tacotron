@@ -31,7 +31,7 @@ class Flite:
         try:
             phone_ids = [self._phone_set.phone_to_id(p) for p in phone_list]
         except Exception as e:
-            print(e)
+            print("Missing", e)
             phone_ids = []
             phone_txt = []
 #        print(phone_list)
