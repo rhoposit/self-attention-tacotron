@@ -209,7 +209,7 @@ hparams = tf.contrib.training.HParams(
     # source
     phoneme='flite',  # none, flite
     # Flite
-    flite_binary_path='/home/smg/cooper/installs/flite/bin/flite',
+    flite_binary_path='/home/s1738075/taco_modified/self_attention_tacotron/flite',
 #    phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/us_phoneset.json',
     phoneset_path=os.path.dirname(__file__) + '/extensions/phoneset/cmu_phoneset.json',
 
