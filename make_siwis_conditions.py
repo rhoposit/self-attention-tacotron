@@ -2,7 +2,7 @@ import math, pickle, os, sys
 from collections import defaultdict
 
 
-infile = "wav_norm_vqvae/index.pkl"
+infile = "/home/s1738075/data/SIWIS/wav_norm_vqvae/index.pkl"
 
 def getstats(index):
     text = set()
@@ -167,15 +167,15 @@ print("condition1 texts:", num)
 # condition2: seen speakers, unseen text ==> validation set
 # condition3: unseen speakers, seen text
 # condition4: unseen speakers, unseen text
-outfile = "/gs/hs0/tgh-20IAA/jenn/VQ_experiments/test_lists/siwis_condition1.txt"
+outfile = "/home/s1738075/VQ_experiments/test_lists/siwis_condition1.txt"
 output = open(outfile, "w")
 [output.write("\n".join(v)+"\n") for k,v in c1.items()]
 output.close()
-outfile = "/gs/hs0/tgh-20IAA/jenn/VQ_experiments/test_lists/siwis_condition2.txt"
+outfile = "/home/s1738075/VQ_experiments/test_lists/siwis_condition2.txt"
 output = open(outfile, "w")
 [output.write("\n".join(v)+"\n") for k,v in c2.items()]
 output.close()
-outfile = "/gs/hs0/tgh-20IAA/jenn/VQ_experiments/test_lists/siwis_condition3.txt"
+outfile = "/home/s1738075/VQ_experiments/test_lists/siwis_condition3.txt"
 output = open(outfile, "w")
 [output.write("\n".join(v)+"\n") for k,v in c3.items()]
 output.close()
@@ -186,17 +186,17 @@ output.close()
 
 
 a = [v for k,v in index_train.items()]
-newpickle = "/gs/hs0/tgh-20IAA/jenn/data/SIWIS/wav_norm_vqvae/index2.pkl"
+newpickle = "/home/s1738075/data/SIWIS/wav_norm_vqvae/index2.pkl"
 with open(newpickle, 'wb') as handle:
     pickle.dump(a, handle, protocol=pickle.HIGHEST_PROTOCOL)
-#newpickle = "/gs/hs0/tgh-20IAA/jenn/data/SIWIS/wav_norm_vqvaef0/index2.pkl"
+#newpickle = "/home/s1738075/data/SIWIS/wav_norm_vqvaef0/index2.pkl"
 #with open(newpickle, 'wb') as handle:
 #    pickle.dump(a, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 
 
-with open('/gs/hs0/tgh-20IAA/jenn/data/SIWIS/wav_norm_vqvae/index2.pkl', 'rb') as f:
+with open('/home/s1738075/data/SIWIS/wav_norm_vqvae/index2.pkl', 'rb') as f:
     index = pickle.load(f)
 train_set = index[:]
 test_index = [x[:75] for i, x in enumerate(train_set)]
