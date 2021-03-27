@@ -179,7 +179,7 @@ outfile = "/home/s1738075/VQ_experiments/test_lists/siwis_condition3.txt"
 output = open(outfile, "w")
 [output.write("\n".join(v)+"\n") for k,v in c3.items()]
 output.close()
-outfile = "/gs/hs0/tgh-20IAA/jenn/VQ_experiments/test_lists/siwis_condition4.txt"
+outfile = "/home/s1738075/VQ_experiments/test_lists/siwis_condition4.txt"
 output = open(outfile, "w")
 [output.write("\n".join(v)+"\n") for k,v in c4.items()]
 output.close()
