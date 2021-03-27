@@ -20,21 +20,21 @@ HPARAM_FILE=/home/s1738075/taco_modified/self_attention_tacotron/examples/codes/
 OUTPUT_DIR=/home/s1738075/taco_modified/prediction/${NAME}
 
 
-#mkdir $SCRATCH
-#mkdir $SCRATCH_DATA
-#mkdir $SCRATCH_CHECK
-#mkdir ${CHECKPOINTS}
-#mkdir $SOURCE_DATA
-#mkdir $TARGET_DATA
+mkdir $SCRATCH
+mkdir $SCRATCH_DATA
+mkdir $SCRATCH_CHECK
+mkdir ${CHECKPOINTS}
+mkdir $SOURCE_DATA
+mkdir $TARGET_DATA
 #rsync -ruva $ORIG_DATA $SCRATCH_DATA
 
-python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $TARGET_DATA siwis 0 161
-rsync -ruva $TARGET_DATA /home/s1738075/data/
+#python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $TARGET_DATA siwis 0 162
+#rsync -ruva $TARGET_DATA /home/s1738075/data/
 
-python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $SOURCE_DATA siwis 0 161
+python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $SOURCE_DATA siwis 0 162
 rsync -ruva $SOURCE_DATA /home/s1738075/data/
 
-#rsync -ruva $SCRATCH_DATA_RAW /home/s1738075/data/
+rsync -ruva $SCRATCH_DATA_RAW /home/s1738075/data/
 exit
 
 

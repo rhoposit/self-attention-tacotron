@@ -31,8 +31,8 @@ OUTPUT_DIR=/home/s1738075/taco_modified/prediction/${NAME}
 #python preprocess_vqcodes.py --target-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/flite' $SCRATCH_DATA_RAW $TARGET_DATA vctk 0 171
 #rsync -ruva $TARGET_DATA /home/s1738075/data/
 
-python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/self_attention_tacotron/flite' $SCRATCH_DATA_RAW $SOURCE_DATA vctk 0 171
-rsync -ruva $SOURCE_DATA /home/s1738075/data/
+#python preprocess_vqcodes.py --source-only --hparams=phoneme=flite,flite_binary_path='/home/s1738075/taco_modified/self_attention_tacotron/flite' $SCRATCH_DATA_RAW $SOURCE_DATA vctk 0 171
+#rsync -ruva $SOURCE_DATA /home/s1738075/data/
 
 #rsync -ruva $SCRATCH_DATA_RAW /home/s1738075/data/
 exit
