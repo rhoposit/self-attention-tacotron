@@ -47,7 +47,7 @@ def write_preprocessed_source_data(_id: int, key: str, source: np.ndarray, text,
         'lang': bytes_feature([lang.encode('utf-8')]),
     }))
     write_tfrecord(example, filename)
-    write_phones(phone_txt, filename.split(".")[0]+".txt")
+#    write_phones(phone_txt, filename.split(".")[0]+".txt")
 
     
 
