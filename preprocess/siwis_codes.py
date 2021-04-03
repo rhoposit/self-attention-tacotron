@@ -146,15 +146,14 @@ class CODES:
                     codeints = codeints[start::3]
                 a = np.array(codeints)
 
-                print("v", self.version, "s", start, "len", len(codeints))
-                print(a.size)
-                codes = np.zeros((a.size, self.num_codes))
-                codes[np.arange(a.size),a] = 1
-                codes = np.array(codes, np.float32)
-                codes_length = a.size
-                file_path = os.path.join(self.out_dir, f"{record.key}.target.tfrecord")
-                write_preprocessed_target_data(record.id, record.key, codes, codes_length, lang, file_path)
-                return record.key
+                if a.size != 0:
+                    codes = np.zeros((a.size, self.num_codes))
+                    codes[np.arange(a.size),a] = 1
+                    codes = np.array(codes, np.float32)
+                    codes_length = a.size
+                    file_path = os.path.join(self.out_dir, f"{record.key}.target.tfrecord")
+                    write_preprocessed_target_data(record.id, record.key, codes, codes_length, lang, file_path)
+                    return record.key
 
     def _process_txt(self, record: TxtCodeRecord):
         print(self.in_dir)
