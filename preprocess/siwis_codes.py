@@ -145,6 +145,9 @@ class CODES:
                 if start >= 0:
                     codeints = codeints[start::3]
                 a = np.array(codeints)
+
+                print("v", self.version, "s", start, "len", len(codeints))
+                print(a.size)
                 codes = np.zeros((a.size, self.num_codes))
                 codes[np.arange(a.size),a] = 1
                 codes = np.array(codes, np.float32)
