@@ -149,8 +149,8 @@ class DatasetSource:
             codes = target.codes
 
             
-            a = np.array([0])
-            silence = np.zeros((a.size, 170))
+            a = np.array([hparams.num_mels-1])
+            silence = np.zeros((a.size, haparams.num_mels))
             silence[np.arange(a.size),a] = 1
             silence = np.float32(silence)
 
@@ -279,7 +279,7 @@ class ZippedDataset(DatasetBase):
 
         def reduce_func(unused_key, window: tf.data.Dataset):
             a = np.array([0])
-            silence = np.zeros((a.size, 170))
+            silence = np.zeros((a.size, self.hparams.num_mels-1))
             silence[np.arange(a.size),a] = 1
             return window.padded_batch(batch_size, padded_shapes=(
                 SourceData(
@@ -293,7 +293,7 @@ class ZippedDataset(DatasetBase):
                 CodeData(
                     id=tf.TensorShape([]),
                     key=tf.TensorShape([]),
-                    codes=tf.TensorShape([None,170]),
+                    codes=tf.TensorShape([None,self.hparams.num_mels-1]),
                     codes_length=tf.TensorShape([]),
                     target_length=tf.TensorShape([]),
                     done=tf.TensorShape([None]),

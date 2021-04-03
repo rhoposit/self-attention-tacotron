@@ -161,8 +161,8 @@ class DatasetSource:
             r = hparams.outputs_per_step
             codes = target.codes
             
-            a = np.array([170])
-            silence = np.zeros((a.size, 171))
+            a = np.array([hparams.num_mels-1])
+            silence = np.zeros((a.size, hparams.num_mels))
             print(silence.shape, a.size, a)
             silence[np.arange(a.size),a] = 1
             silence = np.float32(silence)
@@ -203,7 +203,7 @@ class DatasetSource:
 #            index = tf.Print(index, [tf.shape(index), index], "\n* indexes\n", summarize=-1)
 #            index = tf.concat([a, index, a], 0)
 #            index = tf.Print(index, [tf.shape(index), index], "\n* indexes after padding\n", summarize=-1)
-#            codes = tf.one_hot(index, depth=171)
+#            codes = tf.one_hot(index, depth=hparams.num_mels)
 #            codes = tf.Print(codes, [tf.shape(codes)], "\n* labels.codes after padding\n", summarize=-1)
 
 #            codes = tf.cond(no_padding_condition, lambda: codes_with_silence, padding_function(codes_with_silence))
@@ -311,8 +311,8 @@ class ZippedDataset(DatasetBase):
             return tf.minimum(tf.to_int64(num_buckets), bucket_id)
 
         def reduce_func(unused_key, window: tf.data.Dataset):
-            a = np.array([170])
-            silence = np.zeros((a.size, 171))
+            a = np.array([self.hparams.num_mels-1])
+            silence = np.zeros((a.size, self.hparams.num_mels))
             silence[np.arange(a.size),a] = 1
             return window.padded_batch(batch_size, padded_shapes=(
                 SourceData(
@@ -328,7 +328,7 @@ class ZippedDataset(DatasetBase):
                 CodeData(
                     id=tf.TensorShape([]),
                     key=tf.TensorShape([]),
-                    codes=tf.TensorShape([None,171]),
+                    codes=tf.TensorShape([None,self.hparams.num_mels]),
                     codes_length=tf.TensorShape([]),
                     target_length=tf.TensorShape([]),
                     done=tf.TensorShape([None]),

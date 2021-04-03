@@ -98,7 +98,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
             code_output_raw = tf.Print(code_output_raw, [tf.shape(code_output_raw)], "\n* code output raw", summarize=-1)
 #            code_output_softmax = tf.nn.softmax(code_output_raw, axis=None, name=None, dim=None)
             code_output_softmax = tf.Print(code_output_softmax, [tf.shape(code_output_softmax)], "\n* code output softmax", summarize=-1)
-            code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 171)
+            code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = params.num_mels)
             code_output = tf.Print(code_output, [tf.shape(code_output)], "\n* code output onehot", summarize=-1)
 
             # arrange to (B, T_memory, T_query)
@@ -133,7 +133,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                                                                     tf.transpose(alignment2, perm=[0, 2, 1])),
                                                                 apply_dropout_on_inference=params.apply_dropout_on_inference)
 #                code_output_softmax = tf.nn.softmax(code_output_raw, axis=None, name=None, dim=None)
-                code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = 171)
+                code_output = tf.one_hot(tf.argmax(code_output_softmax, axis=2), depth = params.num_mels)
 
                 if params.decoder == "DualSourceTransformerDecoder" and not is_training:
                     alignment1 = tf.transpose(decoder_state.rnn_state.rnn_state[0].alignment_history[0].stack(),
@@ -223,7 +223,7 @@ class DualSourceSelfAttentionTacotronModel(tf.estimator.Estimator):
                     apply_dropout_on_inference=params.apply_dropout_on_inference)
                 
 #                code_output_softmax_with_teacher = tf.nn.softmax(code_output_raw_with_teacher, axis=None, name=None, dim=None)
-                code_output_with_teacher = tf.one_hot(tf.argmax(code_output_softmax_with_teacher, axis=2), depth = 171)
+                code_output_with_teacher = tf.one_hot(tf.argmax(code_output_softmax_with_teacher, axis=2), depth = params.num_mels)
                 code_loss_with_teacher = 0.1*codes_loss(code_output_raw_with_teacher, labels.codes,
                                                   labels.code_loss_mask, params.code_loss_type)
                 done_loss_with_teacher = binary_loss(stop_token_with_teacher, labels.done, labels.binary_loss_mask)
@@ -353,7 +353,7 @@ def decoder_factory(params):
                                                attention_rnn_out_units=params.attention_out_units,
                                                decoder_version=params.decoder_version,
                                                decoder_out_units=params.decoder_out_units,
-                                               num_mels=171,
+                                               num_mels=params.num_mels,
                                                outputs_per_step=params.outputs_per_step,
                                                max_iters=params.max_iters,
                                                n_feed_frame=params.n_feed_frame,

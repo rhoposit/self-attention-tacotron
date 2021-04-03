@@ -11,7 +11,7 @@ import os
 hparams = tf.contrib.training.HParams(
 
     # Audio
-    num_mels=171,
+    num_mels=1025,
     num_mgcs=60,
     num_freq=2049,
     sample_rate=48000,

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --partition=ILCC_GPU                 # ILCC_GPU, CDT_GPU, ILCC_CPU, etc
 
-#SBATCH --job-name=phn100_text                    # Job name
+#SBATCH --job-name=p_phone                  # Job name
 #SBATCH --mail-type=END,FAIL                 # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=j.williams@ed.ac.uk      # Where to send mail
 #SBATCH --ntasks=1                           # Run on a single machine
@@ -9,8 +9,8 @@
 #SBATCH --cpus-per-task=1                    # require N cpus
 #SBATCH --mem=14000                          # Job memory request
 #SBATCH --time=02:00:00                      # Time limit hrs:min:sec
-#SBATCH --output=/home/s1738075/taco_modified/logs/phn100_4096_text.out
-#SBATCH --error=/home/s1738075/taco_modified/logs/phn100_4096_text.err
+#SBATCH --output=/home/s1738075/taco_modified/logs/phn100_1024_phone.out
+#SBATCH --error=/home/s1738075/taco_modified/logs/phn100_1024_phone.err
 
 #echo "hello"
 
@@ -21,8 +21,8 @@ hostname
 conda activate taco
 
 DATASET=vqcodes
-NAME=all_vctk_phn100_SP_text_4096
-N=4097
+NAME=all_vctk_phn100_SP_phone_1024
+N=1025
 ORIG_DATA=/home/s1738075/special/L1_dat_files/sys5_phn100/phn100_648024/${NAME}
 
 SCRATCH=/disk/scratch/s1738075
