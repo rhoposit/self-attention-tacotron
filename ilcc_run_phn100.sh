@@ -5,8 +5,8 @@
 # rsync the data to home
 
 DATASET=vqcodes
-NAME=all_vctk_170_SP_phones_1024
-ORIG_DATA=/home/s1738075/special/L1_dat_files/sys5/vctk_753011/${NAME} 
+NAME=all_vctk_phn100_SP_phones_1024
+ORIG_DATA=/home/s1738075/special/L1_dat_files/sys5_phn100/phn100_648024/${NAME}
 N=1025
 
 SCRATCH=/disk/scratch/s1738075
@@ -21,20 +21,19 @@ HPARAM_FILE=/home/s1738075/taco_modified/self_attention_tacotron/examples/codes/
 OUTPUT_DIR=/home/s1738075/taco_modified/prediction/${NAME}
 
 
-#mkdir $SCRATCH
-#mkdir $SCRATCH_DATA
-#mkdir $SCRATCH_CHECK
-#mkdir ${CHECKPOINTS}
-#mkdir $SOURCE_DATA
-#mkdir $TARGET_DATA
-#rsync -ruva $ORIG_DATA $SCRATCH_DATA
+mkdir $SCRATCH
+mkdir $SCRATCH_DATA
+mkdir $SCRATCH_CHECK
+mkdir ${CHECKPOINTS}
+mkdir $SOURCE_DATA
+mkdir $TARGET_DATA
+rsync -ruva $ORIG_DATA $SCRATCH_DATA
 
 python preprocess_vqcodes.py --target-only $SCRATCH_DATA_RAW $TARGET_DATA vctk 0 $N
 rsync -ruva $TARGET_DATA /home/s1738075/data/
 
 python preprocess_vqcodes.py --source-only $SCRATCH_DATA_RAW $SOURCE_DATA vctk 0 $N
 rsync -ruva $SOURCE_DATA /home/s1738075/data/
-
 rsync -ruva $SCRATCH_DATA_RAW /home/s1738075/data/
 exit
 
