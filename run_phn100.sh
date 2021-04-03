@@ -21,7 +21,7 @@ hostname
 conda activate taco
 
 DATASET=vqcodes
-NAME=all_vctk_phn100_SP_phone_1024
+NAME=all_vctk_phn100_SP_phones_1024
 N=1025
 ORIG_DATA=/home/s1738075/special/L1_dat_files/sys5_phn100/phn100_648024/${NAME}
 
